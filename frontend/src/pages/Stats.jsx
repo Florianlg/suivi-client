@@ -223,5 +223,4 @@ const Stats = () => {
         </Box>
     );
 };
-
 export default Stats;
