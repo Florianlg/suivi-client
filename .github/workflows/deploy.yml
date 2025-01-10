@@ -28,8 +28,8 @@ jobs:
       - name: Build and push backend
         uses: docker/build-push-action@v4
         with:
-          context: ./backend
-          file: ./backend/Dockerfile.backend
+          context: ./back-end
+          file: ./Dockerfile.backend
           push: true
           tags: florianlg56/backend:latest
 
@@ -38,6 +38,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./frontend
-          file: ./frontend/Dockerfile.frontend
+          file: ./Dockerfile.frontend
           push: true
           tags: florianlg56/frontend:latest
