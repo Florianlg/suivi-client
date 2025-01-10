@@ -53,7 +53,6 @@ const Stats = () => {
 
         fetchData();
     }, []);
-
     // Générer les années disponibles
     const getAvailableYears = (data) =>
         [...new Set(data.map((prestation) => new Date(prestation.date).getFullYear()))].sort();
