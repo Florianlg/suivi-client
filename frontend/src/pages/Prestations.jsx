@@ -23,11 +23,13 @@ const Prestations = () => {
     const [quarterFilter, setQuarterFilter] = useState("");
     const [monthFilter, setMonthFilter] = useState("");
 
-    // Récupérer les prestations depuis l'API
+    // Récupérer les prestations depuis l'API backend MySQL
     useEffect(() => {
         const fetchPrestations = async () => {
             try {
-                const res = await axios.get("http://localhost:4000/prestations");
+                const res = await axios.get("http://localhost:4000/prestations", {
+                    withCredentials: true,
+                });
                 setPrestations(res.data);
                 setFilteredPrestations(res.data);
                 setLoading(false);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Bar, Pie } from "react-chartjs-2";
 import {
     Chart as ChartJS,
@@ -16,7 +16,6 @@ import {
     CircularProgress,
     MenuItem,
     TextField,
-    Grid,
     FormControl,
     Select,
     InputLabel,
@@ -31,17 +30,19 @@ const Stats = () => {
     const [pieChartData, setPieChartData] = useState(null); // Données pour le graphique en camembert
     const [loading, setLoading] = useState(true);
     const [prestations, setPrestations] = useState([]);
-    const [selectedYears, setSelectedYears] = useState([]);
-    const [selectedProviders, setSelectedProviders] = useState([]);
+    const [selectedYears, setSelectedYears] = useState([]); // Années sélectionnées pour le graphique
+    const [selectedProviders, setSelectedProviders] = useState([]); // Prestataires sélectionnés pour le graphique
     const [pieChartYear, setPieChartYear] = useState(new Date().getFullYear()); // Année sélectionnée pour le camembert
 
-    // Récupérer les prestations depuis l'API
+    // Récupérer les prestations depuis l'API backend MySQL
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get("http://localhost:4000/prestations");
+                const res = await axios.get("http://localhost:4000/prestations", {
+                    withCredentials: true,
+                });
                 setPrestations(res.data);
-                setSelectedYears(getAvailableYears(res.data)); // Par défaut, toutes les années
+                setSelectedYears(getAvailableYears(res.data)); // Générer les années disponibles
                 setSelectedProviders(["Florian", "Mélanie", "les deux"]); // Par défaut, tous les prestataires
                 setLoading(false);
             } catch (error) {
@@ -63,7 +64,7 @@ const Stats = () => {
         return ["les deux", ...providers].sort();
     };
 
-    // Filtrer les données en fonction des années et des prestataires sélectionnés
+    // Filtrer les prestations selon les années et prestataires sélectionnés
     useEffect(() => {
         if (prestations.length > 0) {
             processBarChartData(prestations);
@@ -145,9 +146,7 @@ const Stats = () => {
                     label="Années à afficher"
                     value={selectedYears}
                     onChange={(e) => setSelectedYears(e.target.value)}
-                    SelectProps={{
-                        multiple: true,
-                    }}
+                    SelectProps={{ multiple: true }}
                     fullWidth
                 >
                     {getAvailableYears(prestations).map((year) => (
@@ -161,9 +160,7 @@ const Stats = () => {
                     label="Prestataires"
                     value={selectedProviders}
                     onChange={(e) => setSelectedProviders(e.target.value)}
-                    SelectProps={{
-                        multiple: true,
-                    }}
+                    SelectProps={{ multiple: true }}
                     fullWidth
                 >
                     {getAvailableProviders(prestations).map((provider) => (
@@ -183,19 +180,10 @@ const Stats = () => {
                     options={{
                         responsive: true,
                         plugins: {
-                            legend: {
-                                position: "top",
-                            },
-                            title: {
-                                display: true,
-                                text: "Comparatif des Chiffres d'Affaires par Années et Prestataires",
-                            },
+                            legend: { position: "top" },
+                            title: { display: true, text: "Comparatif des Chiffres d'Affaires par Années et Prestataires" },
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                            },
-                        },
+                        scales: { y: { beginAtZero: true } },
                     }}
                 />
             ) : (
@@ -224,20 +212,13 @@ const Stats = () => {
                     data={pieChartData}
                     options={{
                         plugins: {
-                            legend: {
-                                position: "bottom",
-                            },
-                            title: {
-                                display: true,
-                                text: `Répartition des Types de Prestations pour ${pieChartYear}`,
-                            },
+                            legend: { position: "bottom" },
+                            title: { display: true, text: `Répartition des Types de Prestations pour ${pieChartYear}` },
                         },
                     }}
                 />
             ) : (
-                <Typography variant="body1">
-                    Aucune donnée disponible pour l'année sélectionnée.
-                </Typography>
+                <Typography variant="body1">Aucune donnée disponible pour l'année sélectionnée.</Typography>
             )}
         </Box>
     );

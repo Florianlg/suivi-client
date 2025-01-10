@@ -1,0 +1,166 @@
+id,clientName,prestationType,date,price,provider,startDate,endDate,sessionType,excludeFromObjectives
+1,OpenClassrooms,Formation,2020-03-01,4242.0,Mélanie,,,,0
+2,OpenClassrooms,Formation,2020-06-01,4680.0,Mélanie,,,,0
+3,OpenClassrooms,Formation,2020-09-01,3826.0,Mélanie,,,,0
+4,OpenClassrooms,Formation,2020-12-01,7535.0,Mélanie,,,,0
+5,OpenClassrooms,Formation,2019-03-01,5996.0,Mélanie,,,,0
+6,OpenClassrooms,Formation,2019-06-01,4297.0,Mélanie,,,,0
+7,OpenClassrooms,Formation,2019-09-01,4272.0,Mélanie,,,,0
+8,OpenClassrooms,Formation,2019-12-01,3010.0,Mélanie,,,,0
+9,OpenClassrooms,Formation,2018-03-01,6012.0,Mélanie,,,,0
+10,OpenClassrooms,Formation,2018-06-01,5346.0,Mélanie,,,,0
+11,OpenClassrooms,Formation,2018-09-01,6251.0,Mélanie,,,,0
+12,OpenClassrooms,Formation,2018-12-01,6522.0,Mélanie,,,,0
+13,OpenClassrooms,Formation,2021-03-01,11726.0,Mélanie,,,,0
+14,OpenClassrooms,Formation,2021-06-01,7985.0,Mélanie,,,,0
+15,OpenClassrooms,Formation,2021-09-01,8847.0,Mélanie,,,,0
+16,OpenClassrooms,Formation,2021-12-01,7324.0,Mélanie,,,,0
+17,OpenClassrooms,Formation,2022-03-01,6662.0,Mélanie,,,,0
+18,OpenClassrooms,Formation,2022-06-01,7865.0,Mélanie,,,,0
+19,OpenClassrooms,Formation,2022-09-01,5057.0,Mélanie,,,,0
+20,OpenClassrooms,Formation,2022-12-01,5527.0,Mélanie,,,,0
+21,OpenClassrooms,Formation,2023-03-01,1537.0,Mélanie,,,,0
+22,OpenClassrooms,Formation,2023-06-01,690.0,Mélanie,,,,0
+23,OpenClassrooms,Formation,2023-09-01,1085.0,Mélanie,,,,0
+24,OpenClassrooms,Formation,2023-12-01,1982.0,Mélanie,,,,0
+25,OpenClassrooms,Formation,2020-03-01,5648.0,Florian,,,,0
+26,OpenClassrooms,Formation,2020-06-01,5432.0,Florian,,,,0
+27,OpenClassrooms,Formation,2020-09-01,3455.0,Florian,,,,0
+28,OpenClassrooms,Formation,2020-12-01,6461.0,Florian,,,,0
+29,OpenClassrooms,Formation,2019-03-01,3825.0,Florian,,,,0
+30,OpenClassrooms,Formation,2019-06-01,3440.0,Florian,,,,0
+31,OpenClassrooms,Formation,2019-09-01,2445.0,Florian,,,,0
+32,OpenClassrooms,Formation,2019-12-01,4595.0,Florian,,,,0
+33,OpenClassrooms,Formation,2018-03-01,0.0,Florian,,,,0
+34,OpenClassrooms,Formation,2018-06-01,960.0,Florian,,,,0
+35,OpenClassrooms,Formation,2018-09-01,5395.0,Florian,,,,0
+36,OpenClassrooms,Formation,2018-12-01,4280.0,Florian,,,,0
+37,OpenClassrooms,Formation,2021-03-01,9819.0,Florian,,,,0
+38,OpenClassrooms,Formation,2021-06-01,8953.0,Florian,,,,0
+39,OpenClassrooms,Formation,2021-09-01,3924.0,Florian,,,,0
+40,OpenClassrooms,Formation,2021-12-01,4579.0,Florian,,,,0
+41,OpenClassrooms,Formation,2022-03-01,5344.0,Florian,,,,0
+42,OpenClassrooms,Formation,2022-06-01,6432.0,Florian,,,,0
+43,OpenClassrooms,Formation,2022-09-01,45400.0,Florian,,,,0
+44,OpenClassrooms,Formation,2022-12-01,4477.0,Florian,,,,0
+45,OpenClassrooms,Formation,2023-03-01,3159.0,Florian,,,,0
+46,OpenClassrooms,Formation,2023-06-01,815.0,Florian,,,,0
+47,OpenClassrooms,Formation,2023-09-01,0.0,Florian,,,,0
+48,OpenClassrooms,Formation,2023-12-01,0.0,Florian,,,,0
+49,OpenClassrooms,Formation,2024-04-01,97.0,Florian,,,,0
+50,OpenClassrooms,Formation,2024-05-01,554.0,Florian,,,,0
+51,OpenClassrooms,Formation,2024-06-01,519.0,Florian,,,,0
+52,OpenClassrooms,Formation,2024-07-01,578.0,Florian,,,,0
+53,OpenClassrooms,Formation,2024-08-01,512.0,Florian,,,,0
+54,OpenClassrooms,Formation,2024-09-01,472.0,Florian,,,,0
+55,OpenClassrooms,Formation,2024-10-01,290.0,Florian,,,,0
+56,OpenClassrooms,Formation,2024-11-01,310.0,Florian,,,,0
+57,OpenClassrooms,Formation,2024-01-01,537.0,Mélanie,,,,0
+58,OpenClassrooms,Formation,2024-02-01,440.0,Mélanie,,,,0
+59,OpenClassrooms,Formation,2024-03-01,473.0,Mélanie,,,,0
+60,OpenClassrooms,Formation,2024-04-01,383.0,Mélanie,,,,0
+61,OpenClassrooms,Formation,2024-05-01,247.0,Mélanie,,,,0
+62,OpenClassrooms,Formation,2024-06-01,185.0,Mélanie,,,,0
+63,Les Délices de la mer,Autres,2018-03-01,640.0,Florian,,,,0
+64,Les Délices de la mer,Autres,2018-06-01,637.0,Florian,,,,0
+65,Les Délices de la mer,Autres,2018-09-01,640.0,Florian,,,,0
+66,Les Délices de la mer,Autres,2018-12-01,516.0,Florian,,,,0
+67,Les Délices de la mer,Autres,2019-03-01,386.0,Florian,,,,0
+68,Les Délices de la mer,Autres,2019-06-01,1090.0,Florian,,,,0
+69,Les Délices de la mer,Autres,2019-09-01,1150.0,Florian,,,,0
+70,Les Délices de la mer,Autres,2019-12-01,716.0,Florian,,,,0
+71,Les Délices de la mer,Autres,2020-12-01,342.0,Florian,,,,0
+72,Les Délices de la mer,Autres,2020-06-01,403.0,Florian,,,,0
+73,Les Délices de la mer,Autres,2020-09-01,401.0,Florian,,,,0
+74,Les Délices de la mer,Autres,2021-03-01,443.0,Florian,,,,0
+75,Les Délices de la mer,Autres,2021-06-01,171.0,Florian,,,,0
+76,Les Délices de la mer,Autres,2022-12-01,262.0,Florian,,,,0
+77,Colibri,Autres,2018-06-01,780.0,Florian,,,,0
+78,Colibri,Autres,2018-12-01,240.0,Florian,,,,0
+79,Allianz,Autres,2020-06-01,512.0,Florian,,,,0
+80,LCC,Site internet,2021-03-01,10000.0,Florian,,,,0
+81,O'Clock,Formation,2023-06-01,6776.0,Florian,,,,0
+82,O'Clock,Formation,2023-09-01,9184.0,Florian,,,,0
+83,O'Clock,Formation,2023-12-01,14147.0,Florian,,,,0
+84,Inari,Site internet,2018-09-01,685.0,Mélanie,,,,0
+85,Inari,Site internet,2018-12-01,1600.0,Mélanie,,,,0
+86,MPT,Autres,2018-09-01,1000.0,Mélanie,,,,0
+87,Inari,Site internet,2019-06-01,403.0,Mélanie,,,,0
+88,Inari,Site internet,2019-12-01,120.0,Mélanie,,,,0
+89,WSA,Site internet,2019-09-01,713.0,Mélanie,,,,0
+90,Les Chemins de l'Imaginaire,Site internet,2019-09-01,720.0,Mélanie,,,,0
+91,Les Chemins de l'Imaginaire,Site internet,2019-12-01,1680.0,Mélanie,,,,0
+92,Inari,Site internet,2020-03-01,1000.0,Mélanie,,,,0
+93,Inari,Site internet,2020-06-01,257.0,Mélanie,,,,0
+94,Inari,Site internet,2020-09-01,514.0,Mélanie,,,,0
+95,Inari,Site internet,2020-12-01,257.0,Mélanie,,,,0
+96,Les Chemins de l'Imaginaire,Site internet,2020-03-01,110.0,Mélanie,,,,0
+97,Les Chemins de l'Imaginaire,Site internet,2020-06-01,55.0,Mélanie,,,,0
+98,Les Chemins de l'Imaginaire,Site internet,2020-09-01,1150.0,Mélanie,,,,0
+99,Le Comptoir d'ici,Autres,2020-06-01,500.0,Mélanie,,,,0
+100,Danielle Chiarovano,Autres,2020-06-01,960.0,Mélanie,,,,0
+101,Mélanie Hurtrez,Site internet,2020-09-01,215.0,Mélanie,,,,0
+102,Mélanie Hurtrez,Site internet,2020-12-01,530.0,Mélanie,,,,0
+103,L'Escarcelle,Site internet,2020-12-01,2000.0,Mélanie,,,,0
+104,Isabelle,Site internet,2020-12-01,500.0,Mélanie,,,,0
+105,La Minute Pep's,Site internet,2021-03-01,750.0,Mélanie,,,,0
+106,La Minute Pep's,Site internet,2021-06-01,2375.0,Mélanie,,,,0
+107,Serkel,Site internet,2021-06-01,1100.0,Mélanie,,,,0
+108,22/7,Site internet,2021-06-01,828.0,Mélanie,,,,0
+109,22/7,Site internet,2021-09-01,457.0,Mélanie,,,,0
+110,22/7,Site internet,2021-12-01,1229.0,Mélanie,,,,0
+111,Inari,Site internet,2021-06-01,660.0,Mélanie,,,,0
+112,LCC,Site internet,2021-06-01,370.0,Mélanie,,,,0
+113,Les Chemins de l'Imaginaire,Site internet,2021-12-01,515.0,Mélanie,,,,0
+114,22/7,Site internet,2022-03-01,1933.0,Mélanie,,,,0
+115,Victoire Lacoste,Site internet,2022-03-01,1400.0,Mélanie,,,,0
+116,Malika,Site internet,2022-09-01,515.0,Mélanie,,,,0
+117,Malika,Site internet,2022-12-01,290.0,Mélanie,,,,0
+118,Eglantine Doutriaux,Site internet,2022-12-01,2100.0,Mélanie,,,,0
+119,Inari,Site internet,2023-09-01,450.0,Mélanie,,,,0
+120,Les Chemins de l'Imaginaire,Site internet,2023-09-01,270.0,Mélanie,,,,0
+121,Les Chemins de l'Imaginaire,Site internet,2023-03-01,360.0,Mélanie,,,,0
+122,Malika,Site internet,2023-06-01,15890.0,Mélanie,,,,0
+123,Eglantine Doutriaux,Site internet,2023-06-01,900.0,Mélanie,,,,0
+124,Fanny Le Hir,Site internet,2023-06-01,1680.0,Mélanie,,,,0
+125,Magali Miguel,Site internet,2023-06-01,1980.0,Mélanie,,,,0
+126,Magali Miguel,Site internet,2023-09-01,1320.0,Mélanie,,,,0
+127,Laurent Martin,Site internet,2023-06-01,2190.0,Mélanie,,,,0
+128,Caroline Granger,Site internet,2023-09-01,1212.0,Mélanie,,,,0
+129,Caroline Granger,Site internet,2023-12-01,808.0,Mélanie,,,,0
+130,Eric Mental Formation,Autres,2023-09-01,600.0,Mélanie,,,,0
+131,Christophe Desideri,Site internet,2023-12-01,1750.0,Mélanie,,,,0
+132,Lucie Schmitt,Site internet,2023-12-01,499.0,Mélanie,,,,0
+133,Aurélie Chenu,Site internet,2023-12-01,998.0,Mélanie,,,,0
+134,Savonnerie Kolibri,Site internet,2024-01-01,900.0,Mélanie,,,,0
+135,Le Pointillé,Site internet,2024-01-01,1500.0,Mélanie,,,,0
+136,Thomas Sammut,Site internet,2024-01-01,3200.0,Mélanie,,,,0
+137,Mélanie Hurtrez,Site internet,2024-02-01,120.0,Mélanie,,,,0
+138,Inari,Site internet,2024-03-01,375.0,Mélanie,,,,0
+139,Cécilia Pitussi,Autres,2024-03-01,400.0,Mélanie,,,,0
+140,Laetitia Morel,Site internet,2024-04-01,500.0,Mélanie,,,,0
+141,La Minute Pep's,Site internet,2024-05-01,890.0,Mélanie,,,,0
+142,Magali Miguel,Site internet,2024-05-01,135.0,Mélanie,,,,0
+143,Savonnerie Kolibri,Site internet,2024-05-01,600.0,Mélanie,,,,0
+144,Mélanie Hurtrez,Site internet,2024-06-01,375.0,Mélanie,,,,0
+145,Laurent Martin,Site internet,2024-06-01,1460.0,Mélanie,,,,0
+146,Inari,Site internet,2024-06-01,375.0,Mélanie,,,,0
+147,La Minute Pep's,Site internet,2024-07-01,120.0,Mélanie,,,,0
+148,Sekkai,Site internet,2024-08-01,648.0,Mélanie,,,,0
+149,AGCR,Site internet,2024-08-01,1500.0,Mélanie,,,,0
+151,Cécile Langlois,Site internet,2024-11-16,1800.0,Mélanie,,,,0
+152,Guillaume Superczynski,Site internet,2024-11-13,1500.0,Mélanie,,,,0
+153,Inari,Site internet,2024-12-13,870.0,Florian,,,,0
+154,Atelier Alain Ellouz,Site internet,2024-11-29,1920.0,Florian,,,,0
+155,Fanny Le Hir,Site internet,2024-08-15,770.0,Mélanie,,,,1
+156,O'Clock,Formation,2024-04-02,4277.0,Florian,,,,0
+157,O'Clock,Formation,2024-04-22,2961.0,Florian,,,,0
+158,O'Clock,Formation,2024-09-09,3290.0,Florian,,,,0
+159,Les Délices de la mer,Autres,2024-05-15,252.0,Florian,,,,1
+160,La Minute Pep's,Site internet,2024-02-15,58.0,Florian,,,,1
+161,Visiplus,Formation,2024-08-15,1000.0,Florian,,,,0
+162,Visiplus,Formation,2024-10-15,4000.0,Florian,,,,0
+163,Maïlyss Paugam,Préparation mentale,2024-11-23,50.0,Mélanie,2024-11-01,,Forfait tournois,1
+164,Félicie Garnier,Préparation mentale,2024-11-15,70.0,Mélanie,2024-11-01,,A la séance,1
+165,Louka Bihan,Préparation mentale,2024-11-19,70.0,Mélanie,2024-11-01,,A la séance,0
+166,Louka Bihan,Préparation mentale,2024-12-03,70.0,Mélanie,2024-11-01,,A la séance,0

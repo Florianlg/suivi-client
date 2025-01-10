@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Box,
     Typography,
@@ -35,7 +35,9 @@ const Objectifs = () => {
     useEffect(() => {
         const fetchPrestations = async () => {
             try {
-                const res = await axios.get("http://localhost:4000/prestations");
+                const res = await axios.get("http://localhost:4000/prestations", {
+                    withCredentials: true,
+                });
                 processMonthlyData(res.data);
                 setLoading(false);
             } catch (error) {
@@ -153,7 +155,6 @@ const Objectifs = () => {
 
         setMonthlyData(monthlyDataArray);
     };
-
 
     return (
         <Box sx={{ maxWidth: 800, mx: "auto", p: 3, bgcolor: "#f5f5f5", borderRadius: 2 }}>

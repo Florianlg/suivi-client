@@ -1,41 +1,36 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors"); // Ajoutez ceci
+const cors = require("cors");
 const prestationRoutes = require("./routes/prestations");
-const swaggerUi = require("swagger-ui-express");
-const swaggerJsdoc = require("swagger-jsdoc");
 
 const app = express();
 
-// Activez CORS pour toutes les requêtes
-app.use(cors());
+// Configuration du CORS
+app.use(
+  cors({
+    origin: "http://localhost:4173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // Permet l'envoi de cookies ou d'autres informations d'identification
+  })
+);
 
-app.use(bodyParser.json());
+// Middleware pour parser les JSON
+app.use(express.json());
 
-const swaggerOptions = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "API Suivi Client",
-      version: "1.0.0",
-      description: "Documentation de l'API pour la gestion des prestations",
-    },
-    servers: [
-      {
-        url: "http://localhost:4000",
-      },
-    ],
-  },
-  apis: ["./routes/*.js"],
-};
+// Middleware pour loguer les requêtes
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.url}`);
+  next();
+});
 
-const swaggerDocs = swaggerJsdoc(swaggerOptions);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
+// Routes
 app.use("/prestations", prestationRoutes);
 
-app.get("/", (req, res) => {
-  res.send("Serveur backend opérationnel !");
+// Middleware de gestion des erreurs
+app.use((err, req, res, next) => {
+  console.error(err);
+  res
+    .status(err.status || 500)
+    .json({ error: err.message || "Erreur interne du serveur." });
 });
 
 module.exports = app;

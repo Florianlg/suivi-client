@@ -1,366 +1,155 @@
 const express = require("express");
-const db = require("../db/sqlite");
+const Joi = require("joi");
+const pool = require("../connexionDB");
 
 const router = express.Router();
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     Prestation:
- *       type: object
- *       required:
- *         - clientName
- *         - prestationType
- *         - price
- *         - provider
- *         - date
- *       properties:
- *         id:
- *           type: integer
- *           description: L'identifiant unique de la prestation
- *         clientName:
- *           type: string
- *           description: Nom du client
- *         prestationType:
- *           type: string
- *           description: Type de prestation
- *         date:
- *           type: string
- *           format: date
- *           description: Date de la prestation
- *         price:
- *           type: number
- *           description: Prix de la prestation
- *         provider:
- *           type: string
- *           description: Nom du prestataire
- *         startDate:
- *           type: string
- *           format: date
- *           description: Date de début
- *         endDate:
- *           type: string
- *           format: date
- *           description: Date de fin
- *         sessionType:
- *           type: string
- *           description: Type d'accompagnement
- *         excludeFromObjectives:
- *           type: boolean
- *           description: Exclure cette prestation des objectifs
- */
-
-/**
- * @swagger
- * /prestations:
- *   get:
- *     summary: Récupérer toutes les prestations
- *     responses:
- *       200:
- *         description: La liste des prestations
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Prestation'
- */
-// Récupérer toutes les prestations
-router.get("/", (req, res) => {
-  db.all("SELECT * FROM prestations", [], (err, rows) => {
-    if (err) {
-      console.error(err.message);
-      res
-        .status(500)
-        .json({ error: "Erreur lors de la récupération des prestations." });
-    } else {
-      res.json(rows);
-    }
-  });
+// Schéma de validation pour les prestations
+const prestationSchema = Joi.object({
+  clientName: Joi.string().required(),
+  prestationType: Joi.string().required(),
+  date: Joi.date().required(),
+  price: Joi.number().required(),
+  provider: Joi.string().required(),
+  sessionType: Joi.string().optional(),
+  startDate: Joi.date().optional(),
+  endDate: Joi.date().optional(),
+  excludeFromObjectives: Joi.boolean().optional(),
 });
 
-/**
- * @swagger
- * /prestations:
- *   post:
- *     summary: Ajouter une nouvelle prestation
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Prestation'
- *     responses:
- *       201:
- *         description: Prestation ajoutée avec succès
- */ // Ajouter une prestation
-router.post("/", (req, res) => {
-  const {
-    clientName,
-    prestationType,
-    date,
-    price,
-    provider,
-    sessionType,
-    startDate,
-    endDate,
-    excludeFromObjectives,
-  } = req.body;
-
-  if (!clientName || !prestationType || !date || !price || !provider) {
-    return res
-      .status(400)
-      .json({ error: "Tous les champs obligatoires doivent être remplis." });
+// Route : Récupérer les noms de clients distincts
+router.get("/clients", async (req, res, next) => {
+  try {
+    const [rows] = await pool.query(
+      "SELECT DISTINCT clientName FROM prestations"
+    );
+    res.status(200).json(rows);
+  } catch (err) {
+    next(err);
   }
-
-  db.run(
-    `INSERT INTO prestations (clientName, prestationType, date, price, provider, sessionType, startDate, endDate, excludeFromObjectives) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      clientName,
-      prestationType,
-      date,
-      price,
-      provider,
-      sessionType,
-      startDate,
-      endDate,
-      excludeFromObjectives || 0,
-    ],
-    function (err) {
-      if (err) {
-        console.error("Erreur lors de l’ajout de la prestation :", err.message);
-        return res
-          .status(500)
-          .json({ error: "Erreur lors de l’ajout de la prestation." });
-      }
-      res.status(201).json({ message: "Prestation ajoutée avec succès !" });
-    }
-  );
 });
 
-/**
- * @swagger
- * /prestations/{id}:
- *   delete:
- *     summary: Supprimer une prestation par ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID de la prestation à supprimer
- *     responses:
- *       200:
- *         description: Prestation supprimée avec succès
- *       404:
- *         description: Prestation non trouvée
- */
-router.delete("/:id", (req, res) => {
+// Route : Récupérer toutes les prestations
+router.get("/", async (req, res, next) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM prestations");
+    res.status(200).json(rows);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Route : Récupérer une prestation par ID
+router.get("/:id", async (req, res, next) => {
   const { id } = req.params;
-  db.run(`DELETE FROM prestations WHERE id = ?`, [id], function (err) {
-    if (err) {
-      console.error(err.message);
-      res
-        .status(500)
-        .json({ error: "Erreur lors de la suppression de la prestation." });
-    } else if (this.changes === 0) {
-      res.status(404).json({ error: "Prestation non trouvée." });
-    } else {
-      res.json({ message: "Prestation supprimée avec succès." });
+  try {
+    const [rows] = await pool.query("SELECT * FROM prestations WHERE id = ?", [
+      id,
+    ]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Prestation introuvable." });
     }
-  });
-});
-
-// Route pour récupérer les prestations d'un client spécifique
-router.get("/client/:clientName", (req, res) => {
-  const { clientName } = req.params;
-
-  db.all(
-    `SELECT * FROM prestations WHERE clientName = ?`,
-    [clientName],
-    (err, rows) => {
-      if (err) {
-        console.error(
-          "Erreur lors de la récupération des prestations :",
-          err.message
-        );
-        res
-          .status(500)
-          .json({ error: "Erreur lors de la récupération des prestations." });
-      } else if (rows.length === 0) {
-        res
-          .status(404)
-          .json({ error: "Aucune prestation trouvée pour ce client." });
-      } else {
-        res.json(rows);
-      }
-    }
-  );
-});
-
-// Route pour récupérer tous les clients uniques
-router.get("/clients", (req, res) => {
-  db.all("SELECT DISTINCT clientName FROM prestations", [], (err, rows) => {
-    if (err) {
-      console.error(
-        "Erreur lors de la récupération des clients :",
-        err.message
-      );
-      res
-        .status(500)
-        .json({ error: "Erreur lors de la récupération des clients." });
-    } else {
-      const clients = rows.map((row) => ({ clientName: row.clientName }));
-      res.json(clients);
-    }
-  });
-});
-
-router.post("/update-client", (req, res) => {
-  const { clientName, prestation } = req.body;
-
-  if (!clientName || !prestation) {
-    return res
-      .status(400)
-      .json({ error: "Nom du client et prestation requis." });
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    next(err);
   }
-
-  // Ajouter la prestation au client existant
-  db.run(
-    `INSERT INTO prestations (clientName, prestationType, date, price, provider, startDate, endDate, sessionType) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      clientName,
-      prestation.prestationType,
-      prestation.date,
-      prestation.price,
-      prestation.provider,
-      prestation.startDate || null,
-      prestation.endDate || null,
-      prestation.sessionType || null,
-    ],
-    function (err) {
-      if (err) {
-        console.error("Erreur lors de la mise à jour du client :", err.message);
-        return res
-          .status(500)
-          .json({ error: "Erreur lors de la mise à jour du client." });
-      }
-      res.status(201).json({
-        message: "Prestation ajoutée au client existant avec succès.",
-      });
-    }
-  );
 });
 
-router.get("/clients-with-prestations", (req, res) => {
-  db.all(
-    `SELECT clientName, prestationType, date, price, provider 
-       FROM prestations`,
-    [],
-    (err, rows) => {
-      if (err) {
-        console.error(
-          "Erreur lors de la récupération des prestations :",
-          err.message
-        );
-        res
-          .status(500)
-          .json({ error: "Erreur lors de la récupération des prestations." });
-      } else {
-        // Regrouper les prestations par clientName
-        const clientsWithPrestations = rows.reduce((acc, row) => {
-          const client = acc[row.clientName] || {
-            clientName: row.clientName,
-            prestations: [],
-            totalCA: 0,
-          };
-          client.prestations.push({
-            prestationType: row.prestationType,
-            date: row.date,
-            price: row.price,
-            provider: row.provider,
-          });
-          client.totalCA += row.price;
-          acc[row.clientName] = client;
-          return acc;
-        }, {});
-        res.json(Object.values(clientsWithPrestations));
-      }
-    }
-  );
-});
-router.get("/mental-preparation", (req, res) => {
-  db.all(
-    `SELECT clientName, prestationType, date, price, provider, startDate, endDate, sessionType, excludeFromObjectives 
-       FROM prestations 
-       WHERE prestationType = 'Préparation mentale'`,
-    [],
-    (err, rows) => {
-      if (err) {
-        console.error(
-          "Erreur lors de la récupération des prestations :",
-          err.message
-        );
-        res
-          .status(500)
-          .json({ error: "Erreur lors de la récupération des prestations." });
-      } else {
-        const mentalPreparationData = rows.reduce((acc, row) => {
-          const client = acc[row.clientName] || {
-            clientName: row.clientName,
-            prestations: [],
-            totalCA: 0,
-          };
-          client.prestations.push({
-            prestationType: row.prestationType,
-            date: row.date,
-            price: row.price,
-            provider: row.provider,
-            startDate: row.startDate,
-            endDate: row.endDate,
-            sessionType: row.sessionType,
-            excludeFromObjectives: row.excludeFromObjectives,
-          });
-          client.totalCA += row.excludeFromObjectives ? 0 : row.price; // N'ajouter au CA que si non exclu
-          acc[row.clientName] = client;
-          return acc;
-        }, {});
-        res.json(Object.values(mentalPreparationData));
-      }
-    }
-  );
+// Route : Ajouter une nouvelle prestation
+router.post("/", async (req, res, next) => {
+  try {
+    const data = await prestationSchema.validateAsync(req.body);
+    const query = `
+      INSERT INTO prestations (clientName, prestationType, date, price, provider, sessionType, startDate, endDate, excludeFromObjectives) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const [result] = await pool.query(query, [
+      data.clientName,
+      data.prestationType,
+      data.date,
+      data.price,
+      data.provider,
+      data.sessionType || null,
+      data.startDate || null,
+      data.endDate || null,
+      data.excludeFromObjectives || 0,
+    ]);
+    res.status(201).json({
+      message: "Prestation ajoutée avec succès !",
+      prestationId: result.insertId,
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.get("/mental-preparation/stats", (req, res) => {
-  db.all(
-    `SELECT 
-      strftime('%Y', date) AS year, 
-      ((strftime('%m', date) - 1) / 3 + 1) AS quarter, 
-      COUNT(DISTINCT clientName) AS clients, 
-      COUNT(*) AS prestations, 
-      SUM(price) AS ca
-    FROM prestations
-    WHERE prestationType = 'Préparation mentale'
-    GROUP BY year, quarter
-    ORDER BY year, quarter`,
-    [],
-    (err, rows) => {
-      if (err) {
-        console.error(
-          "Erreur lors de la récupération des statistiques :",
-          err.message
-        );
-        res
-          .status(500)
-          .json({ error: "Erreur lors de la récupération des statistiques." });
-      } else {
-        res.json(rows);
-      }
+// Route : Mettre à jour une prestation par ID
+router.put("/:id", async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const data = await prestationSchema.validateAsync(req.body);
+    const query = `
+      UPDATE prestations 
+      SET clientName = ?, prestationType = ?, date = ?, price = ?, provider = ?, sessionType = ?, startDate = ?, endDate = ?, excludeFromObjectives = ? 
+      WHERE id = ?
+    `;
+    const [result] = await pool.query(query, [
+      data.clientName,
+      data.prestationType,
+      data.date,
+      data.price,
+      data.provider,
+      data.sessionType || null,
+      data.startDate || null,
+      data.endDate || null,
+      data.excludeFromObjectives || 0,
+      id,
+    ]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Prestation introuvable." });
     }
-  );
+    res.status(200).json({ message: "Prestation mise à jour avec succès !" });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Route : Supprimer une prestation par ID
+router.delete("/:id", async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const [result] = await pool.query("DELETE FROM prestations WHERE id = ?", [
+      id,
+    ]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Prestation introuvable." });
+    }
+    res.status(200).json({ message: "Prestation supprimée avec succès !" });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Route : Statistiques de préparation mentale
+router.get("/stats/mental-preparation", async (req, res, next) => {
+  try {
+    const query = `
+      SELECT 
+        YEAR(date) AS year, 
+        QUARTER(date) AS quarter, 
+        COUNT(DISTINCT clientName) AS clients, 
+        COUNT(*) AS prestations, 
+        SUM(price) AS ca
+      FROM prestations
+      WHERE prestationType = 'Préparation mentale'
+      GROUP BY year, quarter
+      ORDER BY year, quarter
+    `;
+    const [rows] = await pool.query(query);
+    res.status(200).json(rows);
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;

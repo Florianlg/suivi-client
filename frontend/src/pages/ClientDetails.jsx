@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import {
     Box,
@@ -22,7 +22,10 @@ const ClientDetails = () => {
     useEffect(() => {
         const fetchClientData = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/prestations/client/${clientName}`);
+                // Assurez-vous que l'URL du backend est correcte
+                const response = await axios.get(`http://localhost:4000/prestations/client/${clientName}`, {
+                    withCredentials: true,
+                });
                 setClientData(response.data); // Enregistrer les données du client
             } catch (err) {
                 console.error("Erreur lors de la récupération des données du client :", err);
@@ -74,6 +77,10 @@ const ClientDetails = () => {
                                 <TableCell>{prestation.prestationType}</TableCell>
                                 <TableCell>{prestation.price} €</TableCell>
                                 <TableCell>{prestation.provider}</TableCell>
+                                {/* Si tu as ajouté de nouveaux champs, les afficher ici */}
+                                {prestation.excludeFromObjectives && (
+                                    <TableCell>Exclu des objectifs</TableCell>
+                                )}
                             </TableRow>
                         ))}
                     </TableBody>

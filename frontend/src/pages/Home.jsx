@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import {
     Box,
@@ -30,10 +30,13 @@ const Home = () => {
     // Nouvelle option : Exclure des objectifs
     const [excludeFromObjectives, setExcludeFromObjectives] = useState(false);
 
+    // Récupérer les clients depuis l'API du backend
     useEffect(() => {
         const fetchClients = async () => {
             try {
-                const response = await axios.get("http://localhost:4000/prestations/clients");
+                const response = await axios.get("http://localhost:4000/prestations/clients", {
+                    withCredentials: true,
+                });
                 setClients(response.data);
                 setLoading(false);
             } catch (error) {
@@ -45,6 +48,7 @@ const Home = () => {
         fetchClients();
     }, []);
 
+    // Fonction de soumission du formulaire
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -70,7 +74,8 @@ const Home = () => {
         };
 
         try {
-            await axios.post("http://localhost:4000/prestations", prestation);
+            // Envoi de la prestation au backend MySQL
+            const response = await axios.post("http://localhost:4000/prestations", prestation);
             setMessage("Prestation ajoutée avec succès !");
             // Réinitialisez le formulaire
             setClientName("");
@@ -227,12 +232,7 @@ const Home = () => {
                         control={
                             <Checkbox
                                 checked={excludeFromObjectives}
-
-                                onChange={(e) => {
-                                    setExcludeFromObjectives(e.target.checked);
-                                    console.log("Exclude from Objectives:", e.target.checked);
-                                }}
-
+                                onChange={(e) => setExcludeFromObjectives(e.target.checked)}
                             />
                         }
                         label="Ne pas enregistrer dans Objectifs"

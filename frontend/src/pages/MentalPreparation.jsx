@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Box,
     Typography,
@@ -27,7 +27,10 @@ const MentalPreparation = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await axios.get("http://localhost:4000/prestations");
+                // Utiliser l'URL de ton backend MySQL pour récupérer les données
+                const response = await axios.get("http://localhost:4000/prestations", {
+                    withCredentials: true,
+                });
                 processStats(response.data);
                 processClients(response.data);
                 setLoading(false);
