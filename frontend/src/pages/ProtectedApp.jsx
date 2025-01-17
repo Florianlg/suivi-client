@@ -6,11 +6,11 @@ const ProtectedApp = () => {
     const [password, setPassword] = useState("");
 
     // Récupérer la variable d'environnement
-    const correctPassword = import.meta.env.VITE_REACT_APP_PASSWORD;
-
+    // const correctPassword = import.meta.env.VITE_REACT_APP_PASSWORD;
+    const correctPassword = "mdp";
     console.log("All environment variables:", import.meta.env);
 
-    console.log("Correct password from env:", correctPassword);
+    // console.log("Correct password from env:", correctPassword);
 
     const handleLogin = () => {
         if (password === correctPassword) {
