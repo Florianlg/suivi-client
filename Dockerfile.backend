@@ -1,21 +1,18 @@
-# Utilisation d'une image Node.js LTS
-FROM node:16
+FROM node:18
 
-# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier les fichiers de configuration et installer les dépendances
-COPY package.json package-lock.json ./
+# Copier uniquement les fichiers de dépendances
+COPY ./back-end/package*.json ./
+
+# Installer les dépendances
 RUN npm install
 
-# Copier le reste du projet
-COPY . .
+# Copier le reste des fichiers
+COPY ./back-end /app
 
-# Exposer le port sur lequel le backend écoute
-EXPOSE 4000
+# Exposer le port
+EXPOSE 5000
 
-# Ajouter pg (si ce n'est pas déjà dans package.json)
-RUN npm install pg
-
-# Commande pour démarrer le backend
+# Commande de démarrage
 CMD ["npm", "start"]
