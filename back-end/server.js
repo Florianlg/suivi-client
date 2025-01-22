@@ -4,10 +4,22 @@ const prestationRoutes = require("./routes/prestations");
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:4173", // Frontend local
+  "https://frontend-xn8p.onrender.com", // Frontend déployé
+];
+
 // Configuration du CORS
 app.use(
   cors({
-    origin: "http://localhost:4173",
+    origin: (origin, callback) => {
+      // Autoriser les requêtes sans origine (ex. clients REST ou serveurs internes)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Origin non autorisée par CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // Permet l'envoi de cookies ou d'autres informations d'identification
   })

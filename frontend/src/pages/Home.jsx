@@ -11,6 +11,8 @@ import {
     FormControlLabel,
 } from "@mui/material";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:4000";
+
 const Home = () => {
     const [clientName, setClientName] = useState("");
     const [newClientName, setNewClientName] = useState("");
@@ -34,7 +36,7 @@ const Home = () => {
     useEffect(() => {
         const fetchClients = async () => {
             try {
-                const response = await axios.get("http://localhost:4000/prestations/clients", {
+                const response = await axios.get(`${API_BASE_URL}/prestations/clients`, {
                     withCredentials: true,
                 });
                 setClients(response.data);
@@ -75,7 +77,7 @@ const Home = () => {
 
         try {
             // Envoi de la prestation au backend MySQL
-            const response = await axios.post("http://localhost:4000/prestations", prestation);
+            const response = await axios.post(`${API_BASE_URL}/prestations/clients`, prestation);
             setMessage("Prestation ajoutée avec succès !");
             // Réinitialisez le formulaire
             setClientName("");
