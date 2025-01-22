@@ -20,7 +20,7 @@ const prestationSchema = Joi.object({
 // Route : Récupérer les noms de clients distincts
 router.get("/clients", async (req, res, next) => {
   try {
-    const [rows] = await pool.query(
+    const { rows } = await pool.query(
       "SELECT DISTINCT clientName FROM prestations"
     );
     res.status(200).json(rows);
@@ -32,7 +32,7 @@ router.get("/clients", async (req, res, next) => {
 // Route : Récupérer toutes les prestations
 router.get("/", async (req, res, next) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM prestations");
+    const { rows } = await pool.query("SELECT * FROM prestations");
     res.status(200).json(rows);
   } catch (err) {
     next(err);
@@ -43,9 +43,10 @@ router.get("/", async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
   const { id } = req.params;
   try {
-    const [rows] = await pool.query("SELECT * FROM prestations WHERE id = ?", [
-      id,
-    ]);
+    const { rows } = await pool.query(
+      "SELECT * FROM prestations WHERE id = $1",
+      [id]
+    );
     if (rows.length === 0) {
       return res.status(404).json({ error: "Prestation introuvable." });
     }
@@ -61,9 +62,10 @@ router.post("/", async (req, res, next) => {
     const data = await prestationSchema.validateAsync(req.body);
     const query = `
       INSERT INTO prestations (clientName, prestationType, date, price, provider, sessionType, startDate, endDate, excludeFromObjectives) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING id
     `;
-    const [result] = await pool.query(query, [
+    const values = [
       data.clientName,
       data.prestationType,
       data.date,
@@ -72,11 +74,12 @@ router.post("/", async (req, res, next) => {
       data.sessionType || null,
       data.startDate || null,
       data.endDate || null,
-      data.excludeFromObjectives || 0,
-    ]);
+      data.excludeFromObjectives || false,
+    ];
+    const { rows } = await pool.query(query, values);
     res.status(201).json({
       message: "Prestation ajoutée avec succès !",
-      prestationId: result.insertId,
+      prestationId: rows[0].id,
     });
   } catch (err) {
     next(err);
@@ -90,10 +93,10 @@ router.put("/:id", async (req, res, next) => {
     const data = await prestationSchema.validateAsync(req.body);
     const query = `
       UPDATE prestations 
-      SET clientName = ?, prestationType = ?, date = ?, price = ?, provider = ?, sessionType = ?, startDate = ?, endDate = ?, excludeFromObjectives = ? 
-      WHERE id = ?
+      SET clientName = $1, prestationType = $2, date = $3, price = $4, provider = $5, sessionType = $6, startDate = $7, endDate = $8, excludeFromObjectives = $9 
+      WHERE id = $10
     `;
-    const [result] = await pool.query(query, [
+    const values = [
       data.clientName,
       data.prestationType,
       data.date,
@@ -102,10 +105,11 @@ router.put("/:id", async (req, res, next) => {
       data.sessionType || null,
       data.startDate || null,
       data.endDate || null,
-      data.excludeFromObjectives || 0,
+      data.excludeFromObjectives || false,
       id,
-    ]);
-    if (result.affectedRows === 0) {
+    ];
+    const { rowCount } = await pool.query(query, values);
+    if (rowCount === 0) {
       return res.status(404).json({ error: "Prestation introuvable." });
     }
     res.status(200).json({ message: "Prestation mise à jour avec succès !" });
@@ -118,10 +122,11 @@ router.put("/:id", async (req, res, next) => {
 router.delete("/:id", async (req, res, next) => {
   const { id } = req.params;
   try {
-    const [result] = await pool.query("DELETE FROM prestations WHERE id = ?", [
-      id,
-    ]);
-    if (result.affectedRows === 0) {
+    const { rowCount } = await pool.query(
+      "DELETE FROM prestations WHERE id = $1",
+      [id]
+    );
+    if (rowCount === 0) {
       return res.status(404).json({ error: "Prestation introuvable." });
     }
     res.status(200).json({ message: "Prestation supprimée avec succès !" });
@@ -135,8 +140,8 @@ router.get("/stats/mental-preparation", async (req, res, next) => {
   try {
     const query = `
       SELECT 
-        YEAR(date) AS year, 
-        QUARTER(date) AS quarter, 
+        EXTRACT(YEAR FROM date) AS year, 
+        EXTRACT(QUARTER FROM date) AS quarter, 
         COUNT(DISTINCT clientName) AS clients, 
         COUNT(*) AS prestations, 
         SUM(price) AS ca
@@ -145,7 +150,7 @@ router.get("/stats/mental-preparation", async (req, res, next) => {
       GROUP BY year, quarter
       ORDER BY year, quarter
     `;
-    const [rows] = await pool.query(query);
+    const { rows } = await pool.query(query);
     res.status(200).json(rows);
   } catch (err) {
     next(err);
