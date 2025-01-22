@@ -11,7 +11,8 @@ import {
     FormControlLabel,
 } from "@mui/material";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:4000";
+const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL || "http://localhost:4000";
+
 
 const Home = () => {
     const [clientName, setClientName] = useState("");
