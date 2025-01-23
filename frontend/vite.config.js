@@ -11,7 +11,4 @@ export default defineConfig({
   },
 });
 
-console.log(
-  "Variables d'environnement :",
-  process.env.VITE_REACT_APP_API_BASE_URL
-);
+console.log("Variables d'environnement :", process.env.VITE_API_BASE_URL);
