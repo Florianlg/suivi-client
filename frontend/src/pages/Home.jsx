@@ -11,7 +11,7 @@ import {
     FormControlLabel,
 } from "@mui/material";
 
-const API_BASE_URL = "https://backend-latest-b4sq.onrender.com" || "http://localhost:4000";
+const API_BASE_URL = "https://backend-latest-b4sq.onrender.com";
 
 
 const Home = () => {
