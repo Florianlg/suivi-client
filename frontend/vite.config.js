@@ -6,7 +6,4 @@ export default defineConfig({
   build: {
     minify: false, // Désactive la minification pour un débogage plus facile (optionnel)
   },
-  define: {
-    "process.env": {}, // Assure que `process.env` ne provoque pas d'erreur, bien que Vite utilise `import.meta.env`
-  },
 });
