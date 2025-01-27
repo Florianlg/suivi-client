@@ -11,6 +11,12 @@ RUN npm install
 # Copier le reste des fichiers
 COPY ./frontend /app
 
+# Injecter les variables d'environnement et construire le frontend
+ARG VITE_API_BASE_URL
+ARG VITE_PASSWORD
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_PASSWORD=$VITE_PASSWORD
+
 # Construire le frontend
 RUN npm run build
 
