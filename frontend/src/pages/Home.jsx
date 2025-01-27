@@ -40,6 +40,7 @@ const Home = () => {
                 const response = await axios.get(`${API_BASE_URL}/prestations/clients`, {
                     withCredentials: true,
                 });
+                console.log("Réponse de l'API :", response.data);
                 setClients(response.data);
                 setLoading(false);
             } catch (error) {
