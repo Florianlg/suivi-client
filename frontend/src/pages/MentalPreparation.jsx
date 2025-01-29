@@ -81,23 +81,22 @@ const MentalPreparation = () => {
                 prestation.prestationtype?.toLowerCase().trim() === "préparation mentale" &&
                 new Date(prestation.date).getFullYear() === parseInt(selectedYear)
         );
-        filtered.forEach(prestation => {
-            prestation.price = Number(prestation.price) || 0;
-        });
 
+        console.log("📆 Clients filtrés pour l'année", selectedYear, ":", filtered);
 
         const clientsData = filtered.reduce((acc, prestation) => {
-            const client = acc[prestation.clientName] || {
-                clientName: prestation.clientName,
-                totalCA: 0,
-            };
-            client.totalCA += prestation.price;
-            acc[prestation.clientName] = client;
+            const clientName = prestation.clientname; // Assurez-vous que la casse est correcte
+            if (!clientName) return acc; // Évite les erreurs si `clientname` est manquant
+
+            const client = acc[clientName] || { clientName, totalCA: 0 };
+            client.totalCA += Number(prestation.price) || 0;
+            acc[clientName] = client;
             return acc;
         }, {});
 
         setClients(Object.values(clientsData));
     };
+
 
     const chartData = {
         labels: Object.keys(stats || {}),
@@ -174,19 +173,18 @@ const MentalPreparation = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {clients.map((client, index) => (
-                            <TableRow
-                                key={index}
-                                sx={{
-                                    cursor: "pointer",
-                                    "&:hover": { bgcolor: "rgba(0, 0, 0, 0.1)" },
-                                }}
-                                onClick={() => navigate(`/client/${client.clientName}`)}
-                            >
-                                <TableCell>{client.clientName}</TableCell>
-                                <TableCell>{client.totalCA.toFixed(2)}</TableCell>
+                        {clients.length > 0 ? (
+                            clients.map((client, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{client.clientName}</TableCell>
+                                    <TableCell>{client.totalCA.toFixed(2)}</TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={2}>Aucun client trouvé</TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>
