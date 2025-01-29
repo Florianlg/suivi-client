@@ -11,7 +11,7 @@ import {
     FormControlLabel,
 } from "@mui/material";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; // || "http://localhost:4000"
+const API_BASE_URL = "/api"; // || "http://localhost:4000"
 console.log("🔍 Variables d'environnement chargées :", import.meta.env);
 console.log("✅ API_BASE_URL utilisée :", import.meta.env.VITE_API_BASE_URL);
 
