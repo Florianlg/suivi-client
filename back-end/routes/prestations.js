@@ -185,7 +185,7 @@ router.get("/prestations/client/:clientName", async (req, res) => {
 
   try {
     const { rows } = await pool.query(
-      "SELECT * FROM prestations WHERE clientName = $1",
+      "SELECT * FROM prestations WHERE LOWER(clientName) = LOWER($1)",
       [clientName]
     );
 
