@@ -51,9 +51,12 @@ const MentalPreparation = () => {
     const processStats = (data) => {
         const filtered = data.filter(
             (prestation) =>
-                prestation.prestationType === "Préparation mentale" &&
+                prestation.prestationtype?.toLowerCase().trim() === "préparation mentale" &&
                 new Date(prestation.date).getFullYear() === parseInt(selectedYear)
         );
+        filtered.forEach(prestation => {
+            prestation.price = Number(prestation.price) || 0;
+        });
 
         const quarters = ["Q1", "Q2", "Q3", "Q4"];
         const statsByQuarter = quarters.reduce((acc, quarter, index) => {
@@ -74,8 +77,14 @@ const MentalPreparation = () => {
 
     const processClients = (data) => {
         const filtered = data.filter(
-            (prestation) => prestation.prestationType === "Préparation mentale"
+            (prestation) =>
+                prestation.prestationtype?.toLowerCase().trim() === "préparation mentale" &&
+                new Date(prestation.date).getFullYear() === parseInt(selectedYear)
         );
+        filtered.forEach(prestation => {
+            prestation.price = Number(prestation.price) || 0;
+        });
+
 
         const clientsData = filtered.reduce((acc, prestation) => {
             const client = acc[prestation.clientName] || {
