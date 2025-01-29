@@ -70,9 +70,9 @@ const Objectifs = () => {
 
                 // Répartir le montant selon le prestataire
                 if (prestation.provider === "Florian") {
-                    groupedData[key].Florian += prestation.price;
+                    groupedData[key].Florian += Number(prestation.price) || 0;
                 } else if (prestation.provider === "Mélanie") {
-                    groupedData[key].Mélanie += prestation.price;
+                    groupedData[key].Mélanie += Number(prestation.price) || 0;
                 } else if (prestation.provider === "les deux") {
                     const halfAmount = prestation.price / 2;
                     groupedData[key].Florian += halfAmount;
@@ -185,14 +185,14 @@ const Objectifs = () => {
                                             bgcolor: validatedFlorian ? "rgba(0, 128, 0, 0.1)" : "rgba(255, 0, 0, 0.1)",
                                         }}
                                     >
-                                        {Florian.toFixed(2)}
+                                        {typeof Florian === "number" ? Florian.toFixed(2) : "0.00"}
                                     </TableCell>
                                     <TableCell
                                         sx={{
                                             bgcolor: validatedMelanie ? "rgba(0, 128, 0, 0.1)" : "rgba(255, 0, 0, 0.1)",
                                         }}
                                     >
-                                        {Mélanie.toFixed(2)}
+                                        {typeof Mélanie === "number" ? Mélanie.toFixed(2) : "0.00"}
                                     </TableCell>
                                 </TableRow>
                             ))}
