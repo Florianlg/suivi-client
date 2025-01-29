@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 
-const API_BASE_URL = "/api"; // || "http://localhost:4000"
+const API_BASE_URL = "https://backend-latest-b4sq.onrender.com"; // || "http://localhost:4000"
 
 const ClientDetails = () => {
     const { clientName } = useParams(); // Récupération du nom du client depuis l'URL
