@@ -180,25 +180,26 @@ router.get("/stats/mental-preparation", async (req, res, next) => {
 });
 
 router.get("/prestations/client/:clientName", async (req, res) => {
-  const rawClientName = req.params.clientName;
-  const clientName = decodeURIComponent(rawClientName).trim();
+  let rawClientName = req.params.clientName;
+  let clientName = decodeURIComponent(rawClientName).trim().replace(/\n/g, ""); // Nettoyage
 
-  console.log("🔍 Requête reçue - Nom du client brut :", rawClientName);
-  console.log("🔍 Après décodage et trim :", clientName);
+  console.log("🔍 Nom du client brut :", rawClientName);
+  console.log("🔍 Après décodage et nettoyage :", clientName);
 
   try {
     const sqlQuery =
       "SELECT * FROM prestations WHERE LOWER(TRIM(clientname)) = LOWER(TRIM($1))";
-    console.log("🔍 Exécution SQL :", sqlQuery, "avec paramètre :", clientName);
+    console.log("🔍 Exécution SQL avec paramètre :", clientName);
 
     const { rows } = await pool.query(sqlQuery, [clientName]);
+
+    console.log("🔍 Résultat de la requête SQL :", rows);
 
     if (rows.length === 0) {
       console.warn("⚠️ Aucun client trouvé :", clientName);
       return res.status(404).json({ error: "Client non trouvé" });
     }
 
-    console.log("✅ Résultat SQL :", rows);
     res.json(rows);
   } catch (error) {
     console.error("❌ Erreur serveur :", error);
