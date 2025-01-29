@@ -37,6 +37,13 @@ app.use((req, res, next) => {
 // Routes
 app.use("/prestations", prestationRoutes);
 
+// 🔍 Vérifier quelles routes sont bien enregistrées
+app._router.stack.forEach((r) => {
+  if (r.route && r.route.path) {
+    console.log(`✅ Route enregistrée : ${r.route.path}`);
+  }
+});
+
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {
   console.error(err);
