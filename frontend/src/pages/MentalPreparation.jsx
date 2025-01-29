@@ -175,7 +175,14 @@ const MentalPreparation = () => {
                     <TableBody>
                         {clients.length > 0 ? (
                             clients.map((client, index) => (
-                                <TableRow key={index}>
+                                <TableRow
+                                    key={index}
+                                    sx={{
+                                        cursor: "pointer",
+                                        "&:hover": { bgcolor: "rgba(0, 0, 0, 0.1)" },
+                                    }}
+                                    onClick={() => navigate(`/client/${client.clientName}`)}
+                                >
                                     <TableCell>{client.clientName}</TableCell>
                                     <TableCell>{client.totalCA.toFixed(2)}</TableCell>
                                 </TableRow>
