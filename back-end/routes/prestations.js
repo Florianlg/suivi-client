@@ -180,20 +180,16 @@ router.get("/stats/mental-preparation", async (req, res, next) => {
 });
 
 router.get("/prestations/client/:clientName", async (req, res) => {
-  const { clientName } = req.params;
-  console.log("🔍 Nom du client reçu dans la requête :", clientName);
+  // Décoder le nom du client
+  const clientName = decodeURIComponent(req.params.clientName).trim();
+  console.log("🔍 Nom du client après décodage et trim :", clientName);
 
   try {
-    const sqlQuery =
-      "SELECT * FROM prestations WHERE LOWER(clientname) = LOWER($1)";
-    console.log(
-      "🔍 Requête SQL exécutée :",
-      sqlQuery,
-      "avec paramètre :",
-      clientName
+    // Requête SQL avec TRIM et LOWER pour éviter les erreurs de formatage
+    const { rows } = await pool.query(
+      "SELECT * FROM prestations WHERE LOWER(TRIM(clientname)) = LOWER(TRIM($1))",
+      [clientName]
     );
-
-    const { rows } = await pool.query(sqlQuery, [clientName]);
 
     if (rows.length === 0) {
       console.warn("⚠️ Aucun client trouvé avec ce nom :", clientName);
@@ -203,11 +199,8 @@ router.get("/prestations/client/:clientName", async (req, res) => {
     console.log("✅ Résultat SQL :", rows);
     res.json(rows);
   } catch (error) {
-    console.error(
-      "❌ Erreur lors de la récupération des prestations du client :",
-      error
-    );
-    res.status(500).json({ error: "Erreur serveur" });
+    console.error("❌ Erreur serveur :", error);
+    res.status(500).json({ error: "Erreur interne du serveur" });
   }
 });
 
