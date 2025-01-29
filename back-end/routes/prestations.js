@@ -181,19 +181,26 @@ router.get("/stats/mental-preparation", async (req, res, next) => {
 
 router.get("/prestations/client/:clientName", async (req, res) => {
   const { clientName } = req.params;
-  console.log("🔍 Nom du client reçu :", clientName);
+  console.log("🔍 Nom du client reçu dans la requête :", clientName);
 
   try {
-    const { rows } = await pool.query(
-      "SELECT * FROM prestations WHERE LOWER(clientName) = LOWER($1)",
-      [clientName]
+    const sqlQuery =
+      "SELECT * FROM prestations WHERE LOWER(clientname) = LOWER($1)";
+    console.log(
+      "🔍 Requête SQL exécutée :",
+      sqlQuery,
+      "avec paramètre :",
+      clientName
     );
+
+    const { rows } = await pool.query(sqlQuery, [clientName]);
 
     if (rows.length === 0) {
       console.warn("⚠️ Aucun client trouvé avec ce nom :", clientName);
       return res.status(404).json({ error: "Client non trouvé" });
     }
 
+    console.log("✅ Résultat SQL :", rows);
     res.json(rows);
   } catch (error) {
     console.error(
@@ -203,4 +210,5 @@ router.get("/prestations/client/:clientName", async (req, res) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
+
 module.exports = router;
