@@ -20,12 +20,34 @@ const prestationSchema = Joi.object({
 // Route : Récupérer les noms de clients distincts
 router.get("/clients", async (req, res, next) => {
   try {
+    console.log("🔍 Requête API reçue : GET /clients");
+
+    // Exécution de la requête SQL
     const { rows } = await pool.query(
       "SELECT DISTINCT clientName FROM prestations"
     );
-    res.status(200).json(rows);
+
+    console.log("✅ Données SQL récupérées :", rows);
+
+    // Vérification : on s'assure que la réponse est un tableau
+    if (!Array.isArray(rows)) {
+      console.warn(
+        "⚠️ La réponse SQL n'est pas un tableau. Correction en cours..."
+      );
+      return res.status(200).json([]);
+    }
+
+    // Vérification : formatage des données si nécessaire
+    const formattedClients = rows.map((row) => ({
+      clientName: row.clientname || row.clientName || "Client inconnu",
+    }));
+
+    console.log("📦 Données envoyées au frontend :", formattedClients);
+
+    res.status(200).json(formattedClients);
   } catch (err) {
-    next(err);
+    console.error("❌ Erreur lors de la requête SQL :", err);
+    res.status(500).json({ error: "Erreur interne du serveur" });
   }
 });
 

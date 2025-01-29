@@ -35,6 +35,7 @@ const Home = () => {
 
     // Récupérer les clients depuis l'API du backend
     useEffect(() => {
+        console.log("Appel à l'API :", `${API_BASE_URL}/prestations/clients`);
         const fetchClients = async () => {
             try {
                 const response = await axios.get(`${API_BASE_URL}/prestations/clients`, {
@@ -125,11 +126,15 @@ const Home = () => {
                         margin="normal"
                     >
                         <MenuItem value="Nouveau client">Nouveau client</MenuItem>
-                        {clients.map((client, index) => (
-                            <MenuItem key={index} value={client.clientName}>
-                                {client.clientName}
-                            </MenuItem>
-                        ))}
+                        {Array.isArray(clients) ? (
+                            clients.map((client, index) => (
+                                <MenuItem key={index} value={client.clientName}>
+                                    {client.clientName}
+                                </MenuItem>
+                            ))
+                        ) : (
+                            <p>Aucun client trouvé</p>
+                        )}
                     </TextField>
 
                     {clientName === "Nouveau client" && (
