@@ -13,6 +13,8 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 
+const API_BASE_URL = "/api"; // || "http://localhost:4000"
+
 const ClientDetails = () => {
     const { clientName } = useParams(); // Récupération du nom du client depuis l'URL
     const [clientData, setClientData] = useState(null); // Initialiser les données à `null`
@@ -23,7 +25,7 @@ const ClientDetails = () => {
         const fetchClientData = async () => {
             try {
                 // Assurez-vous que l'URL du backend est correcte
-                const response = await axios.get(`http://localhost:4000/prestations/client/${clientName}`, {
+                const response = await axios.get(`${API_BASE_URL}/prestations/client/${clientName}`, {
                     withCredentials: true,
                 });
                 setClientData(response.data); // Enregistrer les données du client

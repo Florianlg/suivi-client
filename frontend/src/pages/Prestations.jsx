@@ -15,6 +15,8 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
+const API_BASE_URL = "/api"; // || "http://localhost:4000"
+
 const Prestations = () => {
     const [prestations, setPrestations] = useState([]);
     const [filteredPrestations, setFilteredPrestations] = useState([]);
@@ -27,7 +29,7 @@ const Prestations = () => {
     useEffect(() => {
         const fetchPrestations = async () => {
             try {
-                const res = await axios.get("http://localhost:4000/prestations", {
+                const res = await axios.get(`${API_BASE_URL}/prestations`, {
                     withCredentials: true,
                 });
                 setPrestations(res.data);

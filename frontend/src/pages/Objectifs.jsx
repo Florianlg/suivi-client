@@ -13,6 +13,8 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
+const API_BASE_URL = "/api"; // || "http://localhost:4000"
+
 // Utilitaire pour obtenir le nom d’un mois
 const getMonthName = (month) => {
     const date = new Date(2000, month - 1); // Crée une date fictive
@@ -35,7 +37,7 @@ const Objectifs = () => {
     useEffect(() => {
         const fetchPrestations = async () => {
             try {
-                const res = await axios.get("http://localhost:4000/prestations", {
+                const res = await axios.get(`${API_BASE_URL}/prestations`, {
                     withCredentials: true,
                 });
                 processMonthlyData(res.data);

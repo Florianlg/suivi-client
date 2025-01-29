@@ -17,6 +17,8 @@ import { Bar } from "react-chartjs-2";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE_URL = "/api"; // || "http://localhost:4000"
+
 const MentalPreparation = () => {
     const [stats, setStats] = useState(null);
     const [clients, setClients] = useState([]);
@@ -28,7 +30,7 @@ const MentalPreparation = () => {
         const fetchStats = async () => {
             try {
                 // Utiliser l'URL de ton backend MySQL pour récupérer les données
-                const response = await axios.get("http://localhost:4000/prestations", {
+                const response = await axios.get(`${API_BASE_URL}/prestations`, {
                     withCredentials: true,
                 });
                 processStats(response.data);

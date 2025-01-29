@@ -22,6 +22,8 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
+const API_BASE_URL = "/api"; // || "http://localhost:4000"
+
 // Enregistrer les composants nécessaires pour Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
@@ -38,7 +40,7 @@ const Stats = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get("http://localhost:4000/prestations", {
+                const res = await axios.get(`${API_BASE_URL}/prestations`, {
                     withCredentials: true,
                 });
                 setPrestations(res.data);
