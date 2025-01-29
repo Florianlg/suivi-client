@@ -29,21 +29,24 @@ const MentalPreparation = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                // Utiliser l'URL de ton backend MySQL pour récupérer les données
                 const response = await axios.get(`${API_BASE_URL}/prestations`, {
                     withCredentials: true,
                 });
+
+                console.log("📦 Données reçues de l'API :", response.data); // 🔍 Vérification des données API
+
                 processStats(response.data);
                 processClients(response.data);
                 setLoading(false);
             } catch (error) {
-                console.error("Erreur lors de la récupération des statistiques :", error);
+                console.error("❌ Erreur lors de la récupération des statistiques :", error);
                 setLoading(false);
             }
         };
 
         fetchStats();
     }, [selectedYear]);
+
 
     const processStats = (data) => {
         const filtered = data.filter(
