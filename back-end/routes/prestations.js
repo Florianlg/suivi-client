@@ -11,9 +11,9 @@ const prestationSchema = Joi.object({
   date: Joi.date().required(),
   price: Joi.number().required(),
   provider: Joi.string().required(),
-  sessionType: Joi.string().optional(),
-  startDate: Joi.date().optional(),
-  endDate: Joi.date().optional(),
+  sessionType: Joi.string().allow(null, ""), // ✅ Permet `null` et une chaîne vide
+  startDate: Joi.date().allow(null),
+  endDate: Joi.date().allow(null),
   excludeFromObjectives: Joi.boolean().optional(),
 });
 
@@ -113,12 +113,10 @@ router.post("/", async (req, res, next) => {
     });
   } catch (err) {
     console.error("❌ Erreur lors de l'ajout de la prestation :", err);
-    res
-      .status(500)
-      .json({
-        error: "Erreur lors de l'ajout de la prestation.",
-        details: err.message,
-      });
+    res.status(500).json({
+      error: "Erreur lors de l'ajout de la prestation.",
+      details: err.message,
+    });
   }
 });
 
