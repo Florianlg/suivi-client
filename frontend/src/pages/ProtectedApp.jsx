@@ -1,17 +1,15 @@
 import { useState } from "react";
-import App from "../App"; // Importez votre composant principal
+import App from "../App";
+import { Box, Button, TextField, Typography } from "@mui/material";
 
 const ProtectedApp = () => {
     const [authenticated, setAuthenticated] = useState(false);
     const [password, setPassword] = useState("");
 
-    // Récupérer la variable d'environnement
-    // const correctPassword = import.meta.env.VITE_REACT_APP_PASSWORD;
+    // Définition du mot de passe sécurisé (normalement stocké côté serveur ou environnement)
     const correctPassword = "mdp";
-    console.log("All environment variables:", import.meta.env);
 
-    // console.log("Correct password from env:", correctPassword);
-
+    // Gestion de l'authentification
     const handleLogin = () => {
         if (password === correctPassword) {
             setAuthenticated(true);
@@ -22,22 +20,26 @@ const ProtectedApp = () => {
 
     if (!authenticated) {
         return (
-            <div style={{ textAlign: "center", marginTop: "50px" }}>
-                <h1>Connexion requise</h1>
-                <input
+            <Box sx={{ textAlign: "center", mt: 5, maxWidth: 400, mx: "auto", p: 3, bgcolor: "#f5f5f5", borderRadius: 2 }}>
+                <Typography variant="h5" gutterBottom>
+                    Connexion requise
+                </Typography>
+                <TextField
                     type="password"
-                    placeholder="Entrez le mot de passe"
+                    label="Entrez le mot de passe"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    fullWidth
+                    margin="normal"
                 />
-                <button onClick={handleLogin} style={{ marginLeft: "10px" }}>
+                <Button variant="contained" color="primary" onClick={handleLogin} fullWidth sx={{ mt: 2 }}>
                     Se connecter
-                </button>
-            </div>
+                </Button>
+            </Box>
         );
     }
 
-    return <App />; // Retourne votre application après authentification
+    return <App />;
 };
 
 export default ProtectedApp;

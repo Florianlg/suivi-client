@@ -22,21 +22,19 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
-const API_BASE_URL = "/api"; // || "http://localhost:4000"
+const API_BASE_URL = "/api";
 
-// Enregistrer les composants nécessaires pour Chart.js
+// Enregistrement des composants nécessaires pour Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 const Stats = () => {
-    const [chartData, setChartData] = useState(null); // Données pour le graphique en barres
-    const [pieChartData, setPieChartData] = useState(null); // Données pour le graphique en camembert
+    const [chartData, setChartData] = useState(null);
+    const [pieChartData, setPieChartData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [prestations, setPrestations] = useState([]);
-    const [selectedYears, setSelectedYears] = useState([]); // Années sélectionnées pour le graphique
-    const [selectedProviders, setSelectedProviders] = useState([]); // Prestataires sélectionnés pour le graphique
-    const [pieChartYear, setPieChartYear] = useState(new Date().getFullYear()); // Année sélectionnée pour le camembert
+    const [selectedYears, setSelectedYears] = useState([]);
+    const [pieChartYear, setPieChartYear] = useState(new Date().getFullYear());
 
-    // Récupérer les prestations depuis l'API backend MySQL
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -44,93 +42,57 @@ const Stats = () => {
                     withCredentials: true,
                 });
                 setPrestations(res.data);
-                setSelectedYears(getAvailableYears(res.data)); // Générer les années disponibles
-                setSelectedProviders(["Florian", "Mélanie", "les deux"]); // Par défaut, tous les prestataires
-                setLoading(false);
+                setSelectedYears(getAvailableYears(res.data));
             } catch (error) {
                 console.error("Erreur lors de la récupération des données :", error);
+            } finally {
                 setLoading(false);
             }
         };
-
         fetchData();
     }, []);
-    // Générer les années disponibles
-    const getAvailableYears = (data) =>
-        [...new Set(data.map((prestation) => new Date(prestation.date).getFullYear()))].sort();
 
-    // Ajouter l'option "les deux" dans la liste des prestataires
-    const getAvailableProviders = (data) => {
-        const providers = [...new Set(data.map((prestation) => prestation.provider))];
-        return ["les deux", ...providers].sort();
-    };
+    const getAvailableYears = (data) => [...new Set(data.map((p) => new Date(p.date).getFullYear()))].sort();
 
-    // Filtrer les prestations selon les années et prestataires sélectionnés
     useEffect(() => {
         if (prestations.length > 0) {
             processBarChartData(prestations);
             processPieChartData(prestations, pieChartYear);
         }
-    }, [selectedYears, selectedProviders, pieChartYear, prestations]);
+    }, [selectedYears, pieChartYear, prestations]);
 
-    // Transformer les données pour le graphique en barres
     const processBarChartData = (data) => {
-        const filteredData = data.filter((prestation) => {
-            const year = new Date(prestation.date).getFullYear();
-            const provider = prestation.provider;
-
-            // Inclure les prestations avec "les deux" si sélectionné
-            return (
-                selectedYears.includes(year) &&
-                (selectedProviders.includes(provider) || selectedProviders.includes("les deux"))
-            );
-        });
+        const filteredData = data.filter((p) => selectedYears.includes(new Date(p.date).getFullYear()));
 
         const groupedData = filteredData.reduce((acc, prestation) => {
-            const date = new Date(prestation.date);
-            const year = date.getFullYear();
-            const quarter = Math.ceil((date.getMonth() + 1) / 3);
-
-            if (!acc[year]) {
-                acc[year] = { Q1: 0, Q2: 0, Q3: 0, Q4: 0, total: 0 };
-            }
-
+            const year = new Date(prestation.date).getFullYear();
+            const quarter = Math.ceil((new Date(prestation.date).getMonth() + 1) / 3);
+            acc[year] = acc[year] || { Q1: 0, Q2: 0, Q3: 0, Q4: 0, total: 0 };
             acc[year][`Q${quarter}`] += prestation.price;
             acc[year].total += prestation.price;
-
             return acc;
         }, {});
 
-        const labels = Object.keys(groupedData);
-        const datasets = ["Q1", "Q2", "Q3", "Q4", "total"].map((key, index) => ({
-            label: key === "total" ? "Année entière" : `Trimestre ${key.slice(1)}`,
-            data: labels.map((year) => groupedData[year][key]),
-            backgroundColor: `rgba(${index * 50}, ${index * 80}, ${index * 150}, 0.5)`,
-        }));
-
-        setChartData({ labels, datasets });
+        setChartData({
+            labels: Object.keys(groupedData),
+            datasets: [
+                { label: "Q1", data: Object.values(groupedData).map((y) => y.Q1), backgroundColor: "rgba(75, 192, 192, 0.4)" },
+                { label: "Q2", data: Object.values(groupedData).map((y) => y.Q2), backgroundColor: "rgba(153, 102, 255, 0.4)" },
+                { label: "Q3", data: Object.values(groupedData).map((y) => y.Q3), backgroundColor: "rgba(255, 159, 64, 0.4)" },
+                { label: "Q4", data: Object.values(groupedData).map((y) => y.Q4), backgroundColor: "rgba(255, 99, 132, 0.4)" },
+                { label: "Total", data: Object.values(groupedData).map((y) => y.total), backgroundColor: "rgba(54, 162, 235, 0.4)" },
+            ],
+        });
     };
 
-    // Transformer les données pour le graphique en camembert
     const processPieChartData = (data, year) => {
-        const filteredData = data.filter(
-            (prestation) => new Date(prestation.date).getFullYear() === year
-        );
-
+        const filteredData = data.filter((p) => new Date(p.date).getFullYear() === year);
         const prestationTypes = ["Site internet", "Formation", "Préparation mentale", "Autres"];
-        const counts = prestationTypes.map((type) =>
-            filteredData.filter((prestation) => prestation.prestationType === type).length
-        );
+        const counts = prestationTypes.map((type) => filteredData.filter((p) => p.prestationType === type).length);
 
         setPieChartData({
             labels: prestationTypes,
-            datasets: [
-                {
-                    data: counts,
-                    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
-                    hoverBackgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
-                },
-            ],
+            datasets: [{ data: counts, backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"] }],
         });
     };
 
@@ -140,58 +102,14 @@ const Stats = () => {
                 Statistiques des Prestations
             </Typography>
 
-            {/* Filtres pour le graphique en barres */}
-            <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-                <TextField
-                    select
-                    label="Années à afficher"
-                    value={selectedYears}
-                    onChange={(e) => setSelectedYears(e.target.value)}
-                    SelectProps={{ multiple: true }}
-                    fullWidth
-                >
-                    {getAvailableYears(prestations).map((year) => (
-                        <MenuItem key={year} value={year}>
-                            {year}
-                        </MenuItem>
-                    ))}
-                </TextField>
-                <TextField
-                    select
-                    label="Prestataires"
-                    value={selectedProviders}
-                    onChange={(e) => setSelectedProviders(e.target.value)}
-                    SelectProps={{ multiple: true }}
-                    fullWidth
-                >
-                    {getAvailableProviders(prestations).map((provider) => (
-                        <MenuItem key={provider} value={provider}>
-                            {provider}
-                        </MenuItem>
-                    ))}
-                </TextField>
-            </Box>
-
-            {/* Graphique en barres */}
             {loading ? (
                 <CircularProgress />
             ) : chartData ? (
-                <Bar
-                    data={chartData}
-                    options={{
-                        responsive: true,
-                        plugins: {
-                            legend: { position: "top" },
-                            title: { display: true, text: "Comparatif des Chiffres d'Affaires par Années et Prestataires" },
-                        },
-                        scales: { y: { beginAtZero: true } },
-                    }}
-                />
+                <Bar data={chartData} options={{ responsive: true, plugins: { legend: { position: "top" } } }} />
             ) : (
-                <Typography variant="body1">Aucune donnée disponible.</Typography>
+                <Typography>Aucune donnée disponible.</Typography>
             )}
 
-            {/* Sélecteur d'année pour le graphique en camembert */}
             <FormControl sx={{ my: 3, minWidth: 200 }}>
                 <InputLabel id="pie-chart-year-select-label">Année</InputLabel>
                 <Select
@@ -200,26 +118,15 @@ const Stats = () => {
                     onChange={(e) => setPieChartYear(e.target.value)}
                 >
                     {getAvailableYears(prestations).map((year) => (
-                        <MenuItem key={year} value={year}>
-                            {year}
-                        </MenuItem>
+                        <MenuItem key={year} value={year}>{year}</MenuItem>
                     ))}
                 </Select>
             </FormControl>
 
-            {/* Graphique en camembert */}
             {pieChartData ? (
-                <Pie
-                    data={pieChartData}
-                    options={{
-                        plugins: {
-                            legend: { position: "bottom" },
-                            title: { display: true, text: `Répartition des Types de Prestations pour ${pieChartYear}` },
-                        },
-                    }}
-                />
+                <Pie data={pieChartData} options={{ plugins: { legend: { position: "bottom" } } }} />
             ) : (
-                <Typography variant="body1">Aucune donnée disponible pour l'année sélectionnée.</Typography>
+                <Typography>Aucune donnée disponible pour l'année sélectionnée.</Typography>
             )}
         </Box>
     );

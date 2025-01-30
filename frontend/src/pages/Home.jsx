@@ -9,14 +9,13 @@ import {
     CircularProgress,
     Checkbox,
     FormControlLabel,
+    Paper,
 } from "@mui/material";
 
-const API_BASE_URL = "/api"; // || "http://localhost:4000"
-console.log("🔍 Variables d'environnement chargées :", import.meta.env);
-console.log("✅ API_BASE_URL utilisée :", import.meta.env.VITE_API_BASE_URL);
-
+const API_BASE_URL = "https://backend-latest-b4sq.onrender.com";
 
 const Home = () => {
+    // Déclaration des états pour gérer les champs du formulaire et les données
     const [clientName, setClientName] = useState("");
     const [newClientName, setNewClientName] = useState("");
     const [prestationType, setPrestationType] = useState("");
@@ -26,99 +25,70 @@ const Home = () => {
     const [clients, setClients] = useState([]);
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(true);
-
-    // Champs spécifiques à Préparation mentale
-    const [sessionType, setSessionType] = useState(""); // Type d'accompagnement
-    const [startDate, setStartDate] = useState(""); // Date de début
-    const [endDate, setEndDate] = useState(""); // Date de fin
-
-    // Nouvelle option : Exclure des objectifs
     const [excludeFromObjectives, setExcludeFromObjectives] = useState(false);
 
-    // Récupérer les clients depuis l'API du backend
+    // Chargement des clients disponibles depuis l'API au montage du composant
     useEffect(() => {
-        console.log("Appel à l'API :", `${API_BASE_URL}/prestations/clients`);
         const fetchClients = async () => {
             try {
                 const response = await axios.get(`${API_BASE_URL}/prestations/clients`, {
                     withCredentials: true,
                 });
-                console.log("Réponse de l'API :", response.data);
                 setClients(response.data);
-                setLoading(false);
             } catch (error) {
-                console.error("Erreur lors de la récupération des clients :", error);
                 setMessage("Impossible de charger les clients.");
+            } finally {
                 setLoading(false);
             }
         };
         fetchClients();
     }, []);
 
-    // Fonction de soumission du formulaire
+    // Gestion de la soumission du formulaire
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const finalClientName = clientName === "Nouveau client" ? newClientName : clientName;
 
-        const finalClientName =
-            clientName === "Nouveau client" ? newClientName : clientName;
-
+        // Vérification des champs obligatoires
         if (!finalClientName || !prestationType || !date || !price || !provider) {
             setMessage("Tous les champs sont obligatoires.");
             return;
         }
 
-        // Créer l'objet prestation
-        const prestation = {
-            clientName: finalClientName,
-            prestationType,
-            date,
-            price,
-            provider,
-            sessionType: prestationType === "Préparation mentale" ? sessionType : null,
-            startDate: prestationType === "Préparation mentale" ? startDate : null,
-            endDate: prestationType === "Préparation mentale" ? endDate : null,
-            excludeFromObjectives,
-        };
-
         try {
-            // Envoi de la prestation au backend MySQL
-            const response = await axios.post(`https://backend-latest-b4sq.onrender.com/prestations/`, prestation);
+            // Envoi des données de prestation au backend
+            await axios.post(`${API_BASE_URL}/prestations/`, {
+                clientName: finalClientName,
+                prestationType,
+                date,
+                price,
+                provider,
+                excludeFromObjectives,
+            });
             setMessage("Prestation ajoutée avec succès !");
-            // Réinitialisez le formulaire
+            // Réinitialisation des champs du formulaire après soumission réussie
             setClientName("");
             setPrestationType("");
             setDate("");
             setPrice("");
             setProvider("");
             setNewClientName("");
-            setSessionType("");
-            setStartDate("");
-            setEndDate("");
             setExcludeFromObjectives(false);
         } catch (error) {
-            console.error("Erreur lors de l'ajout de la prestation :", error);
             setMessage("Erreur lors de l'ajout de la prestation.");
         }
     };
 
     return (
-        <Box
-            sx={{
-                maxWidth: 600,
-                mx: "auto",
-                p: 3,
-                bgcolor: "#f5f5f5",
-                borderRadius: 2,
-            }}
-        >
-            <Typography variant="h4" component="h1" gutterBottom>
+        <Box sx={{ maxWidth: 600, mx: "auto", p: 3, bgcolor: "#f5f5f5", borderRadius: 2 }}>
+            <Typography variant="h4" gutterBottom textAlign="center">
                 Ajouter une prestation
             </Typography>
-
             {loading ? (
-                <CircularProgress />
+                <CircularProgress sx={{ display: "block", mx: "auto" }} />
             ) : (
                 <form onSubmit={handleSubmit}>
+                    {/* Sélection du client existant ou ajout d'un nouveau client */}
                     <TextField
                         select
                         label="Client"
@@ -128,17 +98,12 @@ const Home = () => {
                         margin="normal"
                     >
                         <MenuItem value="Nouveau client">Nouveau client</MenuItem>
-                        {Array.isArray(clients) ? (
-                            clients.map((client, index) => (
-                                <MenuItem key={index} value={client.clientName}>
-                                    {client.clientName}
-                                </MenuItem>
-                            ))
-                        ) : (
-                            <p>Aucun client trouvé</p>
-                        )}
+                        {clients.map((client, index) => (
+                            <MenuItem key={index} value={client.clientName}>
+                                {client.clientName}
+                            </MenuItem>
+                        ))}
                     </TextField>
-
                     {clientName === "Nouveau client" && (
                         <TextField
                             label="Nom du nouveau client"
@@ -149,6 +114,7 @@ const Home = () => {
                         />
                     )}
 
+                    {/* Sélection du type de prestation */}
                     <TextField
                         select
                         label="Type de prestation"
@@ -163,62 +129,20 @@ const Home = () => {
                         <MenuItem value="Autres">Autres</MenuItem>
                     </TextField>
 
-                    {prestationType === "Préparation mentale" && (
-                        <>
-                            <TextField
-                                select
-                                label="Type d'accompagnement"
-                                value={sessionType}
-                                onChange={(e) => setSessionType(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                            >
-                                <MenuItem value="A la séance">A la séance</MenuItem>
-                                <MenuItem value="Forfait annuel">Forfait annuel</MenuItem>
-                                <MenuItem value="Forfait tournois">Forfait tournois</MenuItem>
-                            </TextField>
-
-                            <TextField
-                                label="Date de début"
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                required
-                            />
-
-                            <TextField
-                                label="Date de fin"
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                            />
-                        </>
-                    )}
-
+                    {/* Sélection de la date de prestation */}
                     <TextField
-                        label="Date de la prestation"
+                        label="Date"
                         type="date"
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
                         fullWidth
                         margin="normal"
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
+                        InputLabelProps={{ shrink: true }}
                     />
 
+                    {/* Sélection du prix de la prestation */}
                     <TextField
-                        label="Montant"
+                        label="Prix (€)"
                         type="number"
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
@@ -226,6 +150,7 @@ const Home = () => {
                         margin="normal"
                     />
 
+                    {/* Sélection du prestataire */}
                     <TextField
                         select
                         label="Prestataire"
@@ -239,36 +164,19 @@ const Home = () => {
                         <MenuItem value="les deux">Les deux</MenuItem>
                     </TextField>
 
+                    {/* Option pour exclure la prestation des objectifs */}
                     <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={excludeFromObjectives}
-                                onChange={(e) => setExcludeFromObjectives(e.target.checked)}
-                            />
-                        }
-                        label="Ne pas enregistrer dans Objectifs"
+                        control={<Checkbox checked={excludeFromObjectives} onChange={(e) => setExcludeFromObjectives(e.target.checked)} />}
+                        label="Ne pas inclure dans Objectifs"
                     />
 
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        fullWidth
-                        sx={{ mt: 2 }}
-                    >
+                    {/* Bouton de soumission */}
+                    <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
                         Ajouter la prestation
                     </Button>
                 </form>
             )}
-
-            {message && (
-                <Typography
-                    variant="body1"
-                    sx={{ mt: 2, color: message.includes("Erreur") ? "red" : "green" }}
-                >
-                    {message}
-                </Typography>
-            )}
+            {message && <Typography sx={{ mt: 2, textAlign: "center", color: message.includes("Erreur") ? "red" : "green" }}>{message}</Typography>}
         </Box>
     );
 };

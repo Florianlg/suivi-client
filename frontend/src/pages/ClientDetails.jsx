@@ -8,30 +8,28 @@ import {
     TableBody,
     TableCell,
     TableContainer,
+    TableHead,
     TableRow,
     Paper,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 
-const API_BASE_URL = "https://backend-latest-b4sq.onrender.com"; // || "http://localhost:4000"
+const API_BASE_URL = "https://backend-latest-b4sq.onrender.com";
 
 const ClientDetails = () => {
-    const { clientName } = useParams(); // Récupération du nom du client depuis l'URL
-    const [clientData, setClientData] = useState(null); // Initialiser les données à `null`
+    const { clientName } = useParams();
+    const [clientData, setClientData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchClientData = async () => {
             try {
-                const apiUrl = `${API_BASE_URL}/prestations/client/${encodeURIComponent(clientName)}`;
-                console.log("🔍 URL de l'API appelée :", apiUrl);
-                const response = await axios.get(apiUrl, {
+                const response = await axios.get(`${API_BASE_URL}/prestations/client/${encodeURIComponent(clientName)}`, {
                     withCredentials: true,
                 });
                 setClientData(response.data);
             } catch (err) {
-                console.error("Erreur lors de la récupération des données du client :", err.response ? err.response.data : err.message);
                 setError("Impossible de récupérer les données du client.");
             } finally {
                 setLoading(false);
@@ -41,50 +39,34 @@ const ClientDetails = () => {
         fetchClientData();
     }, [clientName]);
 
-
-    if (loading) {
-        return (
-            <Box sx={{ textAlign: "center", mt: 3 }}>
-                <CircularProgress />
-            </Box>
-        );
-    }
-
-    if (error) {
-        return (
-            <Box sx={{ textAlign: "center", mt: 3 }}>
-                <Typography color="error">{error}</Typography>
-            </Box>
-        );
-    }
-
-    if (!clientData || clientData.length === 0) {
-        return (
-            <Box sx={{ textAlign: "center", mt: 3 }}>
-                <Typography>Aucune prestation disponible pour ce client.</Typography>
-            </Box>
-        );
-    }
+    if (loading) return <CircularProgress sx={{ display: "block", mx: "auto", mt: 3 }} />;
+    if (error) return <Typography color="error" sx={{ textAlign: "center", mt: 3 }}>{error}</Typography>;
+    if (!clientData?.length) return <Typography sx={{ textAlign: "center", mt: 3 }}>Aucune prestation disponible.</Typography>;
 
     return (
         <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
             <Typography variant="h4" gutterBottom>
                 Fiche client : {clientName}
             </Typography>
-
             <TableContainer component={Paper}>
                 <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell><strong>Date</strong></TableCell>
+                            <TableCell><strong>Type</strong></TableCell>
+                            <TableCell><strong>Prix (€)</strong></TableCell>
+                            <TableCell><strong>Prestataire</strong></TableCell>
+                            <TableCell><strong>Objectifs</strong></TableCell>
+                        </TableRow>
+                    </TableHead>
                     <TableBody>
                         {clientData.map((prestation) => (
                             <TableRow key={prestation.id}>
-                                <TableCell>{prestation.date}</TableCell>
+                                <TableCell>{new Date(prestation.date).toLocaleDateString()}</TableCell>
                                 <TableCell>{prestation.prestationType}</TableCell>
                                 <TableCell>{prestation.price} €</TableCell>
                                 <TableCell>{prestation.provider}</TableCell>
-                                {/* Si tu as ajouté de nouveaux champs, les afficher ici */}
-                                {prestation.excludeFromObjectives && (
-                                    <TableCell>Exclu des objectifs</TableCell>
-                                )}
+                                <TableCell>{prestation.excludeFromObjectives ? "Exclu" : "Inclus"}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
