@@ -81,12 +81,17 @@ router.get("/:id", async (req, res, next) => {
 // Route : Ajouter une nouvelle prestation
 router.post("/", async (req, res, next) => {
   try {
+    console.log("🔍 Données reçues du frontend :", req.body);
+
     const data = await prestationSchema.validateAsync(req.body);
+
+    console.log("✅ Données validées :", data);
+
     const query = `
-      INSERT INTO prestations (clientName, prestationType, date, price, provider, sessionType, startDate, endDate, excludeFromObjectives) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING id
-    `;
+          INSERT INTO prestations (clientName, prestationType, date, price, provider, sessionType, startDate, endDate, excludeFromObjectives) 
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          RETURNING id
+      `;
     const values = [
       data.clientName,
       data.prestationType,
@@ -98,13 +103,22 @@ router.post("/", async (req, res, next) => {
       data.endDate || null,
       data.excludeFromObjectives || false,
     ];
+
+    console.log("📦 Exécution SQL avec valeurs :", values);
+
     const { rows } = await pool.query(query, values);
     res.status(201).json({
       message: "Prestation ajoutée avec succès !",
       prestationId: rows[0].id,
     });
   } catch (err) {
-    next(err);
+    console.error("❌ Erreur lors de l'ajout de la prestation :", err);
+    res
+      .status(500)
+      .json({
+        error: "Erreur lors de l'ajout de la prestation.",
+        details: err.message,
+      });
   }
 });
 
