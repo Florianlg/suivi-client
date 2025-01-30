@@ -180,6 +180,7 @@ router.get("/stats/mental-preparation", async (req, res, next) => {
 });
 
 router.get("/prestations/client/:clientName", async (req, res, next) => {
+  console.log("🔍 Route /prestations/client/:clientName atteinte");
   let rawClientName = req.params.clientName;
   let clientName = decodeURIComponent(rawClientName).trim().replace(/\n/g, ""); // Nettoyage
 

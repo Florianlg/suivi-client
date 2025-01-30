@@ -9,7 +9,6 @@ const allowedOrigins = [
   "https://frontend-xn8p.onrender.com", // Frontend déployé
 ];
 
-// Configuration du CORS
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -39,10 +38,8 @@ app.use("/prestations", prestationRoutes);
 
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {
-  console.error(err);
-  res
-    .status(err.status || 500)
-    .json({ error: err.message || "Erreur interne du serveur." });
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
 });
 
 module.exports = app;
