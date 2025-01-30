@@ -82,7 +82,7 @@ const Home = () => {
 
         try {
             // Envoi de la prestation au backend MySQL
-            const response = await axios.post(`https://backend-latest-b4sq.onrender.com/prestations/clients`, prestation);
+            const response = await axios.post(`https://backend-latest-b4sq.onrender.com/prestations/`, prestation);
             setMessage("Prestation ajoutée avec succès !");
             // Réinitialisez le formulaire
             setClientName("");
