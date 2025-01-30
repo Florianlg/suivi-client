@@ -179,7 +179,7 @@ router.get("/stats/mental-preparation", async (req, res, next) => {
   }
 });
 
-router.get("/prestations/client/:clientName", async (req, res) => {
+router.get("/prestations/client/:clientName", async (req, res, next) => {
   let rawClientName = req.params.clientName;
   let clientName = decodeURIComponent(rawClientName).trim().replace(/\n/g, ""); // Nettoyage
 
@@ -197,13 +197,16 @@ router.get("/prestations/client/:clientName", async (req, res) => {
 
     if (rows.length === 0) {
       console.warn("⚠️ Aucun client trouvé :", clientName);
-      return res.status(404).json({ error: "Client non trouvé" });
+      return res.status(404).json({ message: "Client non trouvé" });
     }
 
-    res.json(rows);
-  } catch (error) {
-    console.error("❌ Erreur serveur :", error);
-    res.status(500).json({ error: "Erreur interne du serveur" });
+    res.status(200).json(rows);
+  } catch (err) {
+    console.error(
+      "Erreur lors de la récupération des données du client :",
+      err
+    );
+    next(err);
   }
 });
 

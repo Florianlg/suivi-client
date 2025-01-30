@@ -24,13 +24,14 @@ const ClientDetails = () => {
     useEffect(() => {
         const fetchClientData = async () => {
             try {
-                console.log("🔍 URL de l'API appelée :", `${API_BASE_URL}/prestations/client/${encodeURIComponent(clientName)}`);
-                const response = await axios.get(`${API_BASE_URL}/prestations/client/${encodeURIComponent(clientName)}`, {
+                const apiUrl = `${API_BASE_URL}/prestations/client/${encodeURIComponent(clientName)}`;
+                console.log("🔍 URL de l'API appelée :", apiUrl);
+                const response = await axios.get(apiUrl, {
                     withCredentials: true,
                 });
                 setClientData(response.data);
             } catch (err) {
-                console.error("Erreur lors de la récupération des données du client :", err);
+                console.error("Erreur lors de la récupération des données du client :", err.response ? err.response.data : err.message);
                 setError("Impossible de récupérer les données du client.");
             } finally {
                 setLoading(false);
