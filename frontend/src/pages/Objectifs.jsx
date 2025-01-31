@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import {
     Box,
@@ -11,6 +11,10 @@ import {
     TableRow,
     Paper,
     CircularProgress,
+    Grid2,
+    Card,
+    CardContent,
+    TextField,
 } from "@mui/material";
 
 const API_BASE_URL = "/api";
@@ -18,6 +22,7 @@ const API_BASE_URL = "/api";
 const Objectifs = () => {
     const [loading, setLoading] = useState(true);
     const [monthlyData, setMonthlyData] = useState([]);
+    const [targetCA, setTargetCA] = useState(2500);
 
     useEffect(() => {
         const fetchPrestations = async () => {
@@ -37,7 +42,6 @@ const Objectifs = () => {
     }, []);
 
     const processMonthlyData = (data) => {
-        const targetCA = 2500;
         const groupedData = {};
 
         data
@@ -63,7 +67,7 @@ const Objectifs = () => {
                 }
             });
 
-        const sortedKeys = Object.keys(groupedData).sort((a, b) => new Date(a) - new Date(b));
+        const sortedKeys = Object.keys(groupedData).sort((a, b) => a.localeCompare(b));
         const monthlyDataArray = sortedKeys.map((key) => {
             const [year, month] = key.split("-");
             const { Florian, Mélanie } = groupedData[key];
@@ -80,40 +84,66 @@ const Objectifs = () => {
         setMonthlyData(monthlyDataArray);
     };
 
+    const filteredData = useMemo(() => monthlyData, [monthlyData]);
+
     return (
-        <Box sx={{ maxWidth: 800, mx: "auto", p: 3, bgcolor: "#f5f5f5", borderRadius: 2 }}>
-            <Typography variant="h4" gutterBottom>
+        <Box sx={{ maxWidth: 1000, mx: "auto", p: 3 }}>
+            <Typography variant="h4" gutterBottom textAlign="center" fontWeight="bold">
                 Objectifs Mensuels
             </Typography>
+
+            {/* Ajustement du seuil d’objectifs */}
+            <Card sx={{ mb: 3, p: 2, boxShadow: 3 }}>
+                <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                        Définir l'objectif mensuel (€)
+                    </Typography>
+                    <TextField
+                        type="number"
+                        value={targetCA}
+                        onChange={(e) => setTargetCA(Number(e.target.value))}
+                        fullWidth
+                    />
+                </CardContent>
+            </Card>
+
             {loading ? (
                 <CircularProgress sx={{ display: "block", mx: "auto" }} />
-            ) : monthlyData.length > 0 ? (
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow sx={{ bgcolor: "#ececec" }}>
-                                <TableCell><strong>Mois</strong></TableCell>
-                                <TableCell><strong>Florian (€)</strong></TableCell>
-                                <TableCell><strong>Mélanie (€)</strong></TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {monthlyData.map(({ year, month, Florian, Mélanie, validatedFlorian, validatedMelanie }) => (
-                                <TableRow key={`${year}-${month}`}>
-                                    <TableCell>{new Date(year, month - 1).toLocaleString("fr-FR", { month: "long", year: "numeric" })}</TableCell>
-                                    <TableCell sx={{ bgcolor: validatedFlorian ? "rgba(0, 128, 0, 0.1)" : "rgba(255, 0, 0, 0.1)" }}>
-                                        {Florian.toFixed(2)}
-                                    </TableCell>
-                                    <TableCell sx={{ bgcolor: validatedMelanie ? "rgba(0, 128, 0, 0.1)" : "rgba(255, 0, 0, 0.1)" }}>
-                                        {Mélanie.toFixed(2)}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+            ) : filteredData.length > 0 ? (
+                <Card sx={{ boxShadow: 3 }}>
+                    <CardContent>
+                        <TableContainer component={Paper}>
+                            <Table>
+                                <TableHead>
+                                    <TableRow sx={{ bgcolor: "#ececec" }}>
+                                        <TableCell><strong>Mois</strong></TableCell>
+                                        <TableCell><strong>Florian (€)</strong></TableCell>
+                                        <TableCell><strong>Mélanie (€)</strong></TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {filteredData.map(({ year, month, Florian, Mélanie, validatedFlorian, validatedMelanie }) => (
+                                        <TableRow key={`${year}-${month}`}>
+                                            <TableCell>
+                                                {new Date(year, month - 1).toLocaleString("fr-FR", { month: "long", year: "numeric" })}
+                                            </TableCell>
+                                            <TableCell sx={{ bgcolor: validatedFlorian ? "rgba(0, 255, 0, 0.2)" : "rgba(255, 0, 0, 0.2)" }}>
+                                                {Florian.toFixed(2)}
+                                            </TableCell>
+                                            <TableCell sx={{ bgcolor: validatedMelanie ? "rgba(0, 255, 0, 0.2)" : "rgba(255, 0, 0, 0.2)" }}>
+                                                {Mélanie.toFixed(2)}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </CardContent>
+                </Card>
             ) : (
-                <Typography>Aucune donnée disponible.</Typography>
+                <Typography textAlign="center" sx={{ mt: 3, fontStyle: "italic", color: "gray" }}>
+                    Aucune donnée disponible.
+                </Typography>
             )}
         </Box>
     );

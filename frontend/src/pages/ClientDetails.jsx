@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import axios from "axios";
 import {
     Box,
@@ -8,39 +8,43 @@ import {
     TableBody,
     TableCell,
     TableContainer,
+    TableHead,
     TableRow,
     Paper,
+    Card,
+    CardContent,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 
 const API_BASE_URL = "https://backend-latest-b4sq.onrender.com"; // || "http://localhost:4000"
 
 const ClientDetails = () => {
-    const { clientName } = useParams(); // Récupération du nom du client depuis l'URL
-    const [clientData, setClientData] = useState(null); // Initialiser les données à `null`
+    const { clientName } = useParams();
+    const [clientData, setClientData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchClientData = async () => {
-            try {
-                const apiUrl = `${API_BASE_URL}/prestations/client/${encodeURIComponent(clientName)}`;
-                console.log("🔍 URL de l'API appelée :", apiUrl);
-                const response = await axios.get(apiUrl, {
-                    withCredentials: true,
-                });
-                setClientData(response.data);
-            } catch (err) {
-                console.error("Erreur lors de la récupération des données du client :", err.response ? err.response.data : err.message);
-                setError("Impossible de récupérer les données du client.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchClientData();
+    const fetchClientData = useCallback(async () => {
+        try {
+            const apiUrl = `${API_BASE_URL}/prestations/client/${encodeURIComponent(clientName)}`;
+            console.log("🔍 URL de l'API appelée :", apiUrl);
+            const response = await axios.get(apiUrl, {
+                withCredentials: true,
+            });
+            setClientData(response.data);
+        } catch (err) {
+            console.error("Erreur lors de la récupération des données du client :", err.response ? err.response.data : err.message);
+            setError("Impossible de récupérer les données du client.");
+        } finally {
+            setLoading(false);
+        }
     }, [clientName]);
 
+    useEffect(() => {
+        fetchClientData();
+    }, [fetchClientData]);
+
+    const prestations = useMemo(() => clientData || [], [clientData]);
 
     if (loading) {
         return (
@@ -58,7 +62,7 @@ const ClientDetails = () => {
         );
     }
 
-    if (!clientData || clientData.length === 0) {
+    if (!prestations.length) {
         return (
             <Box sx={{ textAlign: "center", mt: 3 }}>
                 <Typography>Aucune prestation disponible pour ce client.</Typography>
@@ -67,29 +71,46 @@ const ClientDetails = () => {
     }
 
     return (
-        <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
-            <Typography variant="h4" gutterBottom>
-                Fiche client : {clientName}
-            </Typography>
+        <Box sx={{ maxWidth: 900, mx: "auto", p: 3 }}>
+            <Card sx={{ boxShadow: 3, mb: 3 }}>
+                <CardContent>
+                    <Typography variant="h4" gutterBottom>
+                        Fiche client : {clientName}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                        Détails des prestations effectuées par ce client.
+                    </Typography>
+                </CardContent>
+            </Card>
 
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableBody>
-                        {clientData.map((prestation) => (
-                            <TableRow key={prestation.id}>
-                                <TableCell>{prestation.date}</TableCell>
-                                <TableCell>{prestation.prestationType}</TableCell>
-                                <TableCell>{prestation.price} €</TableCell>
-                                <TableCell>{prestation.provider}</TableCell>
-                                {/* Si tu as ajouté de nouveaux champs, les afficher ici */}
-                                {prestation.excludeFromObjectives && (
-                                    <TableCell>Exclu des objectifs</TableCell>
-                                )}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+            <Card sx={{ boxShadow: 3 }}>
+                <CardContent>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow sx={{ bgcolor: "#ececec" }}>
+                                    <TableCell><strong>Date</strong></TableCell>
+                                    <TableCell><strong>Type de prestation</strong></TableCell>
+                                    <TableCell><strong>Prix (€)</strong></TableCell>
+                                    <TableCell><strong>Prestataire</strong></TableCell>
+                                    <TableCell><strong>Exclu des objectifs</strong></TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {prestations.map((prestation) => (
+                                    <TableRow key={prestation.id}>
+                                        <TableCell>{new Date(prestation.date).toLocaleDateString("fr-FR")}</TableCell>
+                                        <TableCell>{prestation.prestationType}</TableCell>
+                                        <TableCell>{prestation.price} €</TableCell>
+                                        <TableCell>{prestation.provider}</TableCell>
+                                        <TableCell>{prestation.excludeFromObjectives ? "Oui" : "Non"}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </CardContent>
+            </Card>
         </Box>
     );
 };

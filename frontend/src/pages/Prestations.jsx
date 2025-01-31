@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import {
     Box,
@@ -13,17 +13,17 @@ import {
     Paper,
     MenuItem,
     TextField,
+    Grid2,
+    Card,
+    CardContent,
 } from "@mui/material";
 
 const API_BASE_URL = "/api";
 
 const Prestations = () => {
     const [prestations, setPrestations] = useState([]);
-    const [filteredPrestations, setFilteredPrestations] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [yearFilter, setYearFilter] = useState("");
-    const [quarterFilter, setQuarterFilter] = useState("");
-    const [monthFilter, setMonthFilter] = useState("");
+    const [filters, setFilters] = useState({ year: "", quarter: "", month: "" });
 
     useEffect(() => {
         const fetchPrestations = async () => {
@@ -32,7 +32,6 @@ const Prestations = () => {
                     withCredentials: true,
                 });
                 setPrestations(res.data);
-                setFilteredPrestations(res.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération des prestations :", error);
             } finally {
@@ -42,104 +41,91 @@ const Prestations = () => {
         fetchPrestations();
     }, []);
 
-    useEffect(() => {
-        let filtered = prestations;
-        if (yearFilter) {
-            filtered = filtered.filter(
-                (prestation) => new Date(prestation.date).getFullYear() === parseInt(yearFilter)
+    // Filtrage optimisé avec useMemo
+    const filteredPrestations = useMemo(() => {
+        return prestations.filter((prestation) => {
+            const date = new Date(prestation.date);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const quarter = Math.ceil(month / 3);
+
+            return (
+                (!filters.year || year === parseInt(filters.year)) &&
+                (!filters.quarter || quarter === parseInt(filters.quarter)) &&
+                (!filters.month || month === parseInt(filters.month))
             );
-        }
-        if (quarterFilter) {
-            filtered = filtered.filter((prestation) => {
-                const month = new Date(prestation.date).getMonth() + 1;
-                return Math.ceil(month / 3) === parseInt(quarterFilter);
-            });
-        }
-        if (monthFilter) {
-            filtered = filtered.filter(
-                (prestation) => new Date(prestation.date).getMonth() + 1 === parseInt(monthFilter)
-            );
-        }
-        setFilteredPrestations(filtered);
-    }, [yearFilter, quarterFilter, monthFilter, prestations]);
+        });
+    }, [filters, prestations]);
 
     return (
-        <Box sx={{ maxWidth: 800, mx: "auto", p: 3, bgcolor: "#f5f5f5", borderRadius: 2 }}>
-            <Typography variant="h4" gutterBottom>
+        <Box sx={{ maxWidth: 1000, mx: "auto", p: 3 }}>
+            <Typography variant="h4" gutterBottom textAlign="center" fontWeight="bold">
                 Liste des Prestations
             </Typography>
 
             {/* Filtres */}
-            <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-                <TextField
-                    select
-                    label="Année"
-                    value={yearFilter}
-                    onChange={(e) => setYearFilter(e.target.value)}
-                    fullWidth
-                >
-                    <MenuItem value="">Toutes les années</MenuItem>
-                    {[...new Set(prestations.map((p) => new Date(p.date).getFullYear()))].sort().map((year) => (
-                        <MenuItem key={year} value={year}>{year}</MenuItem>
-                    ))}
-                </TextField>
-                <TextField
-                    select
-                    label="Trimestre"
-                    value={quarterFilter}
-                    onChange={(e) => setQuarterFilter(e.target.value)}
-                    fullWidth
-                >
-                    <MenuItem value="">Tous les trimestres</MenuItem>
-                    {[1, 2, 3, 4].map((q) => (
-                        <MenuItem key={q} value={q}>Trimestre {q}</MenuItem>
-                    ))}
-                </TextField>
-                <TextField
-                    select
-                    label="Mois"
-                    value={monthFilter}
-                    onChange={(e) => setMonthFilter(e.target.value)}
-                    fullWidth
-                >
-                    <MenuItem value="">Tous les mois</MenuItem>
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                        <MenuItem key={m} value={m}>{new Date(2000, m - 1).toLocaleString("default", { month: "long" })}</MenuItem>
-                    ))}
-                </TextField>
-            </Box>
+            <Grid2 container spacing={2} sx={{ mb: 3 }}>
+                {[
+                    { label: "Année", key: "year", values: [...new Set(prestations.map((p) => new Date(p.date).getFullYear()))].sort() },
+                    { label: "Trimestre", key: "quarter", values: [1, 2, 3, 4] },
+                    { label: "Mois", key: "month", values: Array.from({ length: 12 }, (_, i) => i + 1) },
+                ].map((filter) => (
+                    <Grid2 item xs={12} sm={4} key={filter.key}>
+                        <TextField
+                            select
+                            label={filter.label}
+                            value={filters[filter.key]}
+                            onChange={(e) => setFilters({ ...filters, [filter.key]: e.target.value })}
+                            fullWidth
+                        >
+                            <MenuItem value="">Tous</MenuItem>
+                            {filter.values.map((val) => (
+                                <MenuItem key={val} value={val}>
+                                    {filter.key === "month" ? new Date(2000, val - 1).toLocaleString("default", { month: "long" }) : val}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </Grid2>
+                ))}
+            </Grid2>
 
             {/* Tableau des prestations */}
-            {loading ? (
-                <CircularProgress sx={{ display: "block", mx: "auto" }} />
-            ) : filteredPrestations.length > 0 ? (
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow sx={{ bgcolor: "#ececec" }}>
-                                <TableCell><strong>Date</strong></TableCell>
-                                <TableCell><strong>Client</strong></TableCell>
-                                <TableCell><strong>Type</strong></TableCell>
-                                <TableCell><strong>Prix (€)</strong></TableCell>
-                                <TableCell><strong>Prestataire</strong></TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {filteredPrestations.map((prestation) => (
-                                <TableRow key={prestation.id}>
-                                    <TableCell>{new Date(prestation.date).toLocaleDateString()}</TableCell>
-                                    <TableCell>{prestation.clientName}</TableCell>
-                                    <TableCell>{prestation.prestationType}</TableCell>
-                                    <TableCell>{prestation.price}</TableCell>
-                                    <TableCell>{prestation.provider}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            ) : (
-                <Typography>Aucune prestation trouvée.</Typography>
-            )}
+            <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
+                <CardContent>
+                    {loading ? (
+                        <CircularProgress sx={{ display: "block", mx: "auto" }} />
+                    ) : filteredPrestations.length > 0 ? (
+                        <TableContainer component={Paper}>
+                            <Table>
+                                <TableHead>
+                                    <TableRow sx={{ bgcolor: "#ececec" }}>
+                                        <TableCell><strong>Date</strong></TableCell>
+                                        <TableCell><strong>Client</strong></TableCell>
+                                        <TableCell><strong>Type</strong></TableCell>
+                                        <TableCell><strong>Prix (€)</strong></TableCell>
+                                        <TableCell><strong>Prestataire</strong></TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {filteredPrestations.map((prestation) => (
+                                        <TableRow key={prestation.id}>
+                                            <TableCell>{new Date(prestation.date).toLocaleDateString()}</TableCell>
+                                            <TableCell>{prestation.clientName}</TableCell>
+                                            <TableCell>{prestation.prestationType}</TableCell>
+                                            <TableCell>{prestation.price}</TableCell>
+                                            <TableCell>{prestation.provider}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    ) : (
+                        <Typography textAlign="center" sx={{ py: 2, fontStyle: "italic", color: "gray" }}>
+                            Aucune prestation trouvée pour les filtres sélectionnés.
+                        </Typography>
+                    )}
+                </CardContent>
+            </Card>
         </Box>
     );
 };

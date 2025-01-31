@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Bar, Pie } from "react-chartjs-2";
 import {
     Chart as ChartJS,
@@ -19,6 +19,9 @@ import {
     FormControl,
     Select,
     InputLabel,
+    Grid2,
+    Card,
+    CardContent,
 } from "@mui/material";
 import axios from "axios";
 
@@ -76,11 +79,11 @@ const Stats = () => {
         setChartData({
             labels: Object.keys(groupedData),
             datasets: [
-                { label: "Q1", data: Object.values(groupedData).map((y) => y.Q1), backgroundColor: "rgba(75, 192, 192, 0.4)" },
-                { label: "Q2", data: Object.values(groupedData).map((y) => y.Q2), backgroundColor: "rgba(153, 102, 255, 0.4)" },
-                { label: "Q3", data: Object.values(groupedData).map((y) => y.Q3), backgroundColor: "rgba(255, 159, 64, 0.4)" },
-                { label: "Q4", data: Object.values(groupedData).map((y) => y.Q4), backgroundColor: "rgba(255, 99, 132, 0.4)" },
-                { label: "Total", data: Object.values(groupedData).map((y) => y.total), backgroundColor: "rgba(54, 162, 235, 0.4)" },
+                { label: "Q1", data: Object.values(groupedData).map((y) => y.Q1), backgroundColor: "#4BC0C0" },
+                { label: "Q2", data: Object.values(groupedData).map((y) => y.Q2), backgroundColor: "#FFCE56" },
+                { label: "Q3", data: Object.values(groupedData).map((y) => y.Q3), backgroundColor: "#FF6384" },
+                { label: "Q4", data: Object.values(groupedData).map((y) => y.Q4), backgroundColor: "#36A2EB" },
+                { label: "Total", data: Object.values(groupedData).map((y) => y.total), backgroundColor: "#7D3C98" },
             ],
         });
     };
@@ -97,38 +100,62 @@ const Stats = () => {
     };
 
     return (
-        <Box sx={{ maxWidth: 800, mx: "auto", p: 3, bgcolor: "#f5f5f5", borderRadius: 2 }}>
-            <Typography variant="h4" component="h1" gutterBottom>
+        <Box sx={{ maxWidth: 1000, mx: "auto", p: 3 }}>
+            <Typography variant="h4" component="h1" gutterBottom textAlign="center" fontWeight="bold">
                 Statistiques des Prestations
             </Typography>
 
             {loading ? (
-                <CircularProgress />
-            ) : chartData ? (
-                <Bar data={chartData} options={{ responsive: true, plugins: { legend: { position: "top" } } }} />
+                <CircularProgress sx={{ display: "block", mx: "auto", my: 4 }} />
             ) : (
-                <Typography>Aucune donnée disponible.</Typography>
-            )}
+                <Grid2 container spacing={4}>
+                    {/* Graphique en barres */}
+                    <Grid2 item xs={12} md={8}>
+                        <Card sx={{ p: 3, boxShadow: 3, borderRadius: 2 }}>
+                            <CardContent>
+                                <Typography variant="h6" gutterBottom>
+                                    Revenus par trimestre
+                                </Typography>
+                                {chartData ? (
+                                    <Bar data={chartData} options={{ responsive: true, plugins: { legend: { position: "top" } } }} />
+                                ) : (
+                                    <Typography>Aucune donnée disponible.</Typography>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </Grid2>
 
-            <FormControl sx={{ my: 3, minWidth: 200 }}>
-                <InputLabel id="pie-chart-year-select-label">Année</InputLabel>
-                <Select
-                    labelId="pie-chart-year-select-label"
-                    value={pieChartYear}
-                    onChange={(e) => setPieChartYear(e.target.value)}
-                >
-                    {getAvailableYears(prestations).map((year) => (
-                        <MenuItem key={year} value={year}>{year}</MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
+                    {/* Sélecteur d'année et Graphique en camembert */}
+                    <Grid2 item xs={12} md={4}>
+                        <Card sx={{ p: 3, boxShadow: 3, borderRadius: 2 }}>
+                            <CardContent>
+                                <FormControl fullWidth sx={{ mb: 2 }}>
+                                    <InputLabel id="pie-chart-year-select-label">Année</InputLabel>
+                                    <Select
+                                        labelId="pie-chart-year-select-label"
+                                        value={pieChartYear}
+                                        onChange={(e) => setPieChartYear(e.target.value)}
+                                    >
+                                        {getAvailableYears(prestations).map((year) => (
+                                            <MenuItem key={year} value={year}>
+                                                {year}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
 
-            {pieChartData ? (
-                <Pie data={pieChartData} options={{ plugins: { legend: { position: "bottom" } } }} />
-            ) : (
-                <Typography>Aucune donnée disponible pour l'année sélectionnée.</Typography>
+                                {pieChartData ? (
+                                    <Pie data={pieChartData} options={{ plugins: { legend: { position: "bottom" } } }} />
+                                ) : (
+                                    <Typography>Aucune donnée disponible pour l'année sélectionnée.</Typography>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </Grid2>
+                </Grid2>
             )}
         </Box>
     );
 };
+
 export default Stats;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
     Box,
     Typography,
@@ -12,6 +12,8 @@ import {
     TableHead,
     TableRow,
     Paper,
+    Card,
+    CardContent,
 } from "@mui/material";
 import { Bar } from "react-chartjs-2";
 import axios from "axios";
@@ -33,13 +35,11 @@ const MentalPreparation = () => {
                     withCredentials: true,
                 });
 
-                console.log("📦 Données reçues de l'API :", response.data); // 🔍 Vérification des données API
-
                 processStats(response.data);
                 processClients(response.data);
-                setLoading(false);
             } catch (error) {
                 console.error("❌ Erreur lors de la récupération des statistiques :", error);
+            } finally {
                 setLoading(false);
             }
         };
@@ -47,16 +47,12 @@ const MentalPreparation = () => {
         fetchStats();
     }, [selectedYear]);
 
-
     const processStats = (data) => {
         const filtered = data.filter(
             (prestation) =>
-                prestation.prestationtype?.toLowerCase().trim() === "préparation mentale" &&
+                prestation.prestationType?.toLowerCase().trim() === "préparation mentale" &&
                 new Date(prestation.date).getFullYear() === parseInt(selectedYear)
         );
-        filtered.forEach(prestation => {
-            prestation.price = Number(prestation.price) || 0;
-        });
 
         const quarters = ["Q1", "Q2", "Q3", "Q4"];
         const statsByQuarter = quarters.reduce((acc, quarter, index) => {
@@ -67,7 +63,7 @@ const MentalPreparation = () => {
             acc[quarter] = {
                 clients: [...new Set(quarterData.map((p) => p.clientName))].length,
                 prestations: quarterData.length,
-                ca: quarterData.reduce((sum, p) => sum + p.price, 0),
+                ca: quarterData.reduce((sum, p) => sum + Number(p.price) || 0, 0),
             };
             return acc;
         }, {});
@@ -78,15 +74,13 @@ const MentalPreparation = () => {
     const processClients = (data) => {
         const filtered = data.filter(
             (prestation) =>
-                prestation.prestationtype?.toLowerCase().trim() === "préparation mentale" &&
+                prestation.prestationType?.toLowerCase().trim() === "préparation mentale" &&
                 new Date(prestation.date).getFullYear() === parseInt(selectedYear)
         );
 
-        console.log("📆 Clients filtrés pour l'année", selectedYear, ":", filtered);
-
         const clientsData = filtered.reduce((acc, prestation) => {
-            const clientName = prestation.clientname; // Assurez-vous que la casse est correcte
-            if (!clientName) return acc; // Évite les erreurs si `clientname` est manquant
+            const clientName = prestation.clientName;
+            if (!clientName) return acc;
 
             const client = acc[clientName] || { clientName, totalCA: 0 };
             client.totalCA += Number(prestation.price) || 0;
@@ -97,8 +91,7 @@ const MentalPreparation = () => {
         setClients(Object.values(clientsData));
     };
 
-
-    const chartData = {
+    const chartData = useMemo(() => ({
         labels: Object.keys(stats || {}),
         datasets: [
             {
@@ -117,54 +110,68 @@ const MentalPreparation = () => {
                 backgroundColor: "rgba(255,159,64,0.4)",
             },
         ],
-    };
+    }), [stats]);
 
     return (
-        <Box sx={{ maxWidth: 800, mx: "auto", p: 3, bgcolor: "#f5f5f5", borderRadius: 2 }}>
-            <Typography variant="h4" component="h1" gutterBottom>
+        <Box sx={{ maxWidth: 1000, mx: "auto", p: 3 }}>
+            <Typography variant="h4" component="h1" gutterBottom textAlign="center" fontWeight="bold">
                 Préparation Mentale - Statistiques
             </Typography>
-            <TextField
-                select
-                label="Année"
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                fullWidth
-                margin="normal"
-            >
-                {[2021, 2022, 2023, 2024].map((year) => (
-                    <MenuItem key={year} value={year}>
-                        {year}
-                    </MenuItem>
-                ))}
-            </TextField>
+
+            {/* Sélection de l'année */}
+            <Card sx={{ mb: 3, p: 2, boxShadow: 3 }}>
+                <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                        Sélectionner une année
+                    </Typography>
+                    <TextField
+                        select
+                        label="Année"
+                        value={selectedYear}
+                        onChange={(e) => setSelectedYear(e.target.value)}
+                        fullWidth
+                    >
+                        {[2021, 2022, 2023, 2024].map((year) => (
+                            <MenuItem key={year} value={year}>
+                                {year}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+                </CardContent>
+            </Card>
+
             {loading ? (
-                <CircularProgress />
+                <CircularProgress sx={{ display: "block", mx: "auto" }} />
             ) : stats ? (
-                <Box>
-                    <Bar
-                        data={chartData}
-                        options={{
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: "top",
+                <Card sx={{ boxShadow: 3, mb: 3 }}>
+                    <CardContent>
+                        <Bar
+                            data={chartData}
+                            options={{
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: "top",
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: `Statistiques pour ${selectedYear}`,
+                                    },
                                 },
-                                title: {
-                                    display: true,
-                                    text: `Statistiques pour ${selectedYear}`,
-                                },
-                            },
-                        }}
-                    />
-                </Box>
+                            }}
+                        />
+                    </CardContent>
+                </Card>
             ) : (
-                <Typography>Aucune donnée disponible pour cette année.</Typography>
+                <Typography textAlign="center" sx={{ mt: 3, fontStyle: "italic", color: "gray" }}>
+                    Aucune donnée disponible pour cette année.
+                </Typography>
             )}
+
             <Typography variant="h5" component="h2" sx={{ mt: 4 }}>
                 Liste des Clients
             </Typography>
-            <TableContainer component={Paper} sx={{ mt: 2 }}>
+            <TableContainer component={Paper} sx={{ mt: 2, boxShadow: 3 }}>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -189,7 +196,9 @@ const MentalPreparation = () => {
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={2}>Aucun client trouvé</TableCell>
+                                <TableCell colSpan={2} textAlign="center">
+                                    Aucun client trouvé.
+                                </TableCell>
                             </TableRow>
                         )}
                     </TableBody>
