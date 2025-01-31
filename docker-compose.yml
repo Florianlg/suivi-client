@@ -21,6 +21,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+      args:
+        - VITE_PASSWORD=${VITE_PASSWORD}
+    env_file:
+      - .env
     ports:
       - "4173:4173"
     depends_on:
