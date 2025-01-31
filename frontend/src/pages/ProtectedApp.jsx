@@ -6,10 +6,8 @@ const ProtectedApp = () => {
     const [authenticated, setAuthenticated] = useState(false);
     const [password, setPassword] = useState("");
 
-    // Définition du mot de passe sécurisé (normalement stocké côté serveur ou environnement)
     const correctPassword = "mdp";
 
-    // Gestion de l'authentification
     const handleLogin = () => {
         if (password === correctPassword) {
             setAuthenticated(true);
@@ -41,5 +39,6 @@ const ProtectedApp = () => {
 
     return <App />;
 };
+
 
 export default ProtectedApp;
