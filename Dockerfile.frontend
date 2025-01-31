@@ -1,29 +1,29 @@
+# Utiliser une image Node stable et récente
 FROM node:18
 
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier uniquement les fichiers de dépendances
+# Copier uniquement les fichiers package.json et package-lock.json pour optimiser le cache Docker
 COPY ./frontend/package*.json ./
 
-# Installer les dépendances
-RUN npm install
+# Installer les dépendances en mode production
+RUN npm install --frozen-lockfile --legacy-peer-deps
 
-# Copier le reste des fichiers
-COPY ./frontend /app
+# Copier le reste du projet
+COPY ./frontend ./
 
-# Injecter les variables d'environnement et construire le frontend
-# ARG VITE_API_BASE_URL
-# ARG VITE_PASSWORD
-# ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
-# ENV VITE_PASSWORD=$VITE_PASSWORD
+# Injecter les variables d'environnement
+ARG VITE_API_BASE_URL
+ARG VITE_PASSWORD
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_PASSWORD=$VITE_PASSWORD
 
-
-# Construire le frontend
+# Construire le frontend avec Vite
 RUN npm run build
 
-# Exposer le port
+# Exposer le port utilisé par Vite
 EXPOSE 4173
 
-# Commande de démarrage
+# Démarrer le serveur frontend
 CMD ["npm", "start"]
-
