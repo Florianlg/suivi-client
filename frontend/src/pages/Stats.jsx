@@ -30,8 +30,6 @@ import axios from "axios";
 
 const API_BASE_URL = "/api";
 
-const API_BASE_URL = "/api";
-
 // Enregistrement des composants nécessaires pour Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
