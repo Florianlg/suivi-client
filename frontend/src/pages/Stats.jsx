@@ -19,11 +19,16 @@ import {
     FormControl,
     Select,
     InputLabel,
-    Grid2,
+    Grid,
     Card,
     CardContent,
+    Button,
+    Alert,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
+const API_BASE_URL = "/api";
 
 const API_BASE_URL = "/api";
 
@@ -34,9 +39,11 @@ const Stats = () => {
     const [chartData, setChartData] = useState(null);
     const [pieChartData, setPieChartData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [prestations, setPrestations] = useState([]);
     const [selectedYears, setSelectedYears] = useState([]);
     const [pieChartYear, setPieChartYear] = useState(new Date().getFullYear());
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -47,13 +54,14 @@ const Stats = () => {
                 setPrestations(res.data);
                 setSelectedYears(getAvailableYears(res.data));
             } catch (error) {
-                console.error("Erreur lors de la récupération des données :", error);
+                console.error("Erreur lors de la récupération des prestations :", error);
+                setError("Impossible de charger les données.");
             } finally {
                 setLoading(false);
             }
         };
-        fetchData();
-    }, []);
+        if (!prestations.length) fetchData();
+    }, [prestations]);
 
     const getAvailableYears = (data) => [...new Set(data.map((p) => new Date(p.date).getFullYear()))].sort();
 
@@ -79,11 +87,11 @@ const Stats = () => {
         setChartData({
             labels: Object.keys(groupedData),
             datasets: [
-                { label: "Q1", data: Object.values(groupedData).map((y) => y.Q1), backgroundColor: "#4BC0C0" },
-                { label: "Q2", data: Object.values(groupedData).map((y) => y.Q2), backgroundColor: "#FFCE56" },
-                { label: "Q3", data: Object.values(groupedData).map((y) => y.Q3), backgroundColor: "#FF6384" },
-                { label: "Q4", data: Object.values(groupedData).map((y) => y.Q4), backgroundColor: "#36A2EB" },
-                { label: "Total", data: Object.values(groupedData).map((y) => y.total), backgroundColor: "#7D3C98" },
+                { label: "Q1", data: Object.values(groupedData).map((y) => y.Q1 || 0), backgroundColor: "#4BC0C0" },
+                { label: "Q2", data: Object.values(groupedData).map((y) => y.Q2 || 0), backgroundColor: "#FFCE56" },
+                { label: "Q3", data: Object.values(groupedData).map((y) => y.Q3 || 0), backgroundColor: "#FF6384" },
+                { label: "Q4", data: Object.values(groupedData).map((y) => y.Q4 || 0), backgroundColor: "#36A2EB" },
+                { label: "Total", data: Object.values(groupedData).map((y) => y.total || 0), backgroundColor: "#7D3C98" },
             ],
         });
     };
@@ -101,16 +109,25 @@ const Stats = () => {
 
     return (
         <Box sx={{ maxWidth: 1000, mx: "auto", p: 3 }}>
+            <Button
+                variant="contained"
+                color="primary"
+                sx={{ mb: 2 }}
+                onClick={() => navigate(-1)}
+            >
+                ← Retour
+            </Button>
+
             <Typography variant="h4" component="h1" gutterBottom textAlign="center" fontWeight="bold">
                 Statistiques des Prestations
             </Typography>
-
+            {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
             {loading ? (
                 <CircularProgress sx={{ display: "block", mx: "auto", my: 4 }} />
             ) : (
-                <Grid2 container spacing={4}>
+                <Grid container spacing={4}>
                     {/* Graphique en barres */}
-                    <Grid2 item xs={12} md={8}>
+                    <Grid item xs={12} md={8}>
                         <Card sx={{ p: 3, boxShadow: 3, borderRadius: 2 }}>
                             <CardContent>
                                 <Typography variant="h6" gutterBottom>
@@ -123,10 +140,10 @@ const Stats = () => {
                                 )}
                             </CardContent>
                         </Card>
-                    </Grid2>
+                    </Grid>
 
                     {/* Sélecteur d'année et Graphique en camembert */}
-                    <Grid2 item xs={12} md={4}>
+                    <Grid item xs={12} md={4}>
                         <Card sx={{ p: 3, boxShadow: 3, borderRadius: 2 }}>
                             <CardContent>
                                 <FormControl fullWidth sx={{ mb: 2 }}>
@@ -151,8 +168,8 @@ const Stats = () => {
                                 )}
                             </CardContent>
                         </Card>
-                    </Grid2>
-                </Grid2>
+                    </Grid>
+                </Grid>
             )}
         </Box>
     );

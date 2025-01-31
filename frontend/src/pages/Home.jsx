@@ -10,7 +10,8 @@ import {
     Checkbox,
     FormControlLabel,
     Paper,
-    Grid2,
+    Grid,
+    Alert
 } from "@mui/material";
 import StatCard from "../components/StatCard";
 import ClientTable from "../components/ClientTable";
@@ -30,6 +31,8 @@ const Home = () => {
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(true);
     const [excludeFromObjectives, setExcludeFromObjectives] = useState(false);
+    const [error, setError] = useState(null);
+
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -85,18 +88,18 @@ const Home = () => {
 
     return (
         <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
-            <Typography variant="h4" gutterBottom textAlign="center" sx={{ fontWeight: "bold" }}>
+            <Typography variant="h4" gutterBottom textAlign="center" sx={{ fontWeight: (theme) => theme.typography.fontWeightBold }}>
                 Tableau de Bord
             </Typography>
 
             {/* Section des Statistiques */}
-            <Grid2 container spacing={3} sx={{ mb: 4 }}>
+            <Grid container spacing={3} sx={{ mb: 4 }}>
                 {stats.map((stat, index) => (
-                    <Grid2 item key={index} xs={12} sm={6} md={4}>
+                    <Grid item key={index} xs={12} sm={6} md={4}>
                         <StatCard title={stat.title} value={stat.value} icon={stat.icon} />
-                    </Grid2>
+                    </Grid>
                 ))}
-            </Grid2>
+            </Grid>
 
             {/* Formulaire d'ajout de prestation */}
             <Paper sx={{ p: 3, bgcolor: "#f5f5f5", borderRadius: 2 }}>
@@ -180,7 +183,11 @@ const Home = () => {
                         <CustomButton label="Ajouter la prestation" type="submit" sx={{ mt: 2, width: "100%" }} />
                     </form>
                 )}
-                {message && <Typography sx={{ mt: 2, textAlign: "center", color: message.includes("Erreur") ? "red" : "green" }}>{message}</Typography>}
+                {message && (
+                    <Alert severity={message.includes("Erreur") ? "error" : "success"} sx={{ mt: 2 }}>
+                        {message}
+                    </Alert>
+                )}
             </Paper>
 
             {/* Liste des Clients */}

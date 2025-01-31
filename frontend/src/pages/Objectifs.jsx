@@ -11,11 +11,14 @@ import {
     TableRow,
     Paper,
     CircularProgress,
-    Grid2,
+    Grid,
     Card,
     CardContent,
     TextField,
+    Button,
+    Alert,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = "/api";
 
@@ -23,6 +26,10 @@ const Objectifs = () => {
     const [loading, setLoading] = useState(true);
     const [monthlyData, setMonthlyData] = useState([]);
     const [targetCA, setTargetCA] = useState(2500);
+    const [error, setError] = useState(null);
+
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         const fetchPrestations = async () => {
@@ -33,13 +40,15 @@ const Objectifs = () => {
                 processMonthlyData(res.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération des prestations :", error);
+                setError("Impossible de charger les données.");
             } finally {
                 setLoading(false);
             }
+
         };
 
-        fetchPrestations();
-    }, []);
+        if (!monthlyData.length) fetchPrestations();
+    }, [monthlyData]);
 
     const processMonthlyData = (data) => {
         const groupedData = {};
@@ -84,10 +93,20 @@ const Objectifs = () => {
         setMonthlyData(monthlyDataArray);
     };
 
-    const filteredData = useMemo(() => monthlyData, [monthlyData]);
+    const filteredData = useMemo(() => (Array.isArray(monthlyData) ? monthlyData : []), [monthlyData]);
+
 
     return (
         <Box sx={{ maxWidth: 1000, mx: "auto", p: 3 }}>
+            <Button
+                variant="contained"
+                color="primary"
+                sx={{ mb: 2 }}
+                onClick={() => navigate(-1)}
+            >
+                ← Retour
+            </Button>
+
             <Typography variant="h4" gutterBottom textAlign="center" fontWeight="bold">
                 Objectifs Mensuels
             </Typography>
@@ -106,7 +125,11 @@ const Objectifs = () => {
                     />
                 </CardContent>
             </Card>
-
+            {error && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                    {error}
+                </Alert>
+            )}
             {loading ? (
                 <CircularProgress sx={{ display: "block", mx: "auto" }} />
             ) : filteredData.length > 0 ? (

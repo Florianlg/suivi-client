@@ -13,16 +13,22 @@ import {
     Paper,
     Card,
     CardContent,
+    Button,
+    Alert,
 } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const API_BASE_URL = "https://backend-latest-b4sq.onrender.com"; // || "http://localhost:4000"
+
+
+
 
 const ClientDetails = () => {
     const { clientName } = useParams();
     const [clientData, setClientData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     const fetchClientData = useCallback(async () => {
         try {
@@ -41,10 +47,12 @@ const ClientDetails = () => {
     }, [clientName]);
 
     useEffect(() => {
-        fetchClientData();
-    }, [fetchClientData]);
+        if (!clientData) fetchClientData();
+    }, [fetchClientData, clientData]);
 
-    const prestations = useMemo(() => clientData || [], [clientData]);
+
+    const prestations = useMemo(() => (Array.isArray(clientData) ? clientData : []), [clientData]);
+
 
     if (loading) {
         return (
@@ -57,7 +65,11 @@ const ClientDetails = () => {
     if (error) {
         return (
             <Box sx={{ textAlign: "center", mt: 3 }}>
-                <Typography color="error">{error}</Typography>
+                {error && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                        {error}
+                    </Alert>
+                )}
             </Box>
         );
     }
@@ -71,7 +83,12 @@ const ClientDetails = () => {
     }
 
     return (
+
         <Box sx={{ maxWidth: 900, mx: "auto", p: 3 }}>
+            <Button variant="contained" color="primary" sx={{ mb: 2 }} onClick={() => navigate(-1)}>
+                ← Retour
+            </Button>
+
             <Card sx={{ boxShadow: 3, mb: 3 }}>
                 <CardContent>
                     <Typography variant="h4" gutterBottom>

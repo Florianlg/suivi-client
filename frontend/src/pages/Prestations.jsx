@@ -13,10 +13,13 @@ import {
     Paper,
     MenuItem,
     TextField,
-    Grid2,
+    Grid,
     Card,
     CardContent,
+    Button,
+    Alert
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = "/api";
 
@@ -24,6 +27,9 @@ const Prestations = () => {
     const [prestations, setPrestations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState({ year: "", quarter: "", month: "" });
+    const [error, setError] = useState(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPrestations = async () => {
@@ -38,39 +44,48 @@ const Prestations = () => {
                 setLoading(false);
             }
         };
-        fetchPrestations();
-    }, []);
+        if (!prestations.length) fetchPrestations();
+    }, [prestations]);
 
     // Filtrage optimisé avec useMemo
-    const filteredPrestations = useMemo(() => {
-        return prestations.filter((prestation) => {
-            const date = new Date(prestation.date);
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-            const quarter = Math.ceil(month / 3);
+    const filteredPrestations = useMemo(() => (Array.isArray(prestations) ? prestations.filter((prestation) => {
+        const date = new Date(prestation.date);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const quarter = Math.ceil(month / 3);
 
-            return (
-                (!filters.year || year === parseInt(filters.year)) &&
-                (!filters.quarter || quarter === parseInt(filters.quarter)) &&
-                (!filters.month || month === parseInt(filters.month))
-            );
-        });
-    }, [filters, prestations]);
+        return (
+            (!filters.year || year === parseInt(filters.year)) &&
+            (!filters.quarter || quarter === parseInt(filters.quarter)) &&
+            (!filters.month || month === parseInt(filters.month))
+        );
+    }) : []), [filters, prestations]);
+
 
     return (
         <Box sx={{ maxWidth: 1000, mx: "auto", p: 3 }}>
+
+            <Button
+                variant="contained"
+                color="primary"
+                sx={{ mb: 2 }}
+                onClick={() => navigate(-1)}
+            >
+                ← Retour
+            </Button>
+
             <Typography variant="h4" gutterBottom textAlign="center" fontWeight="bold">
                 Liste des Prestations
             </Typography>
 
             {/* Filtres */}
-            <Grid2 container spacing={2} sx={{ mb: 3 }}>
+            <Grid container spacing={2} sx={{ mb: 3 }}>
                 {[
                     { label: "Année", key: "year", values: [...new Set(prestations.map((p) => new Date(p.date).getFullYear()))].sort() },
                     { label: "Trimestre", key: "quarter", values: [1, 2, 3, 4] },
                     { label: "Mois", key: "month", values: Array.from({ length: 12 }, (_, i) => i + 1) },
                 ].map((filter) => (
-                    <Grid2 item xs={12} sm={4} key={filter.key}>
+                    <Grid item xs={12} sm={4} key={filter.key}>
                         <TextField
                             select
                             label={filter.label}
@@ -85,13 +100,18 @@ const Prestations = () => {
                                 </MenuItem>
                             ))}
                         </TextField>
-                    </Grid2>
+                    </Grid>
                 ))}
-            </Grid2>
+            </Grid>
 
             {/* Tableau des prestations */}
             <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
                 <CardContent>
+                    {error && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {error}
+                        </Alert>
+                    )}
                     {loading ? (
                         <CircularProgress sx={{ display: "block", mx: "auto" }} />
                     ) : filteredPrestations.length > 0 ? (

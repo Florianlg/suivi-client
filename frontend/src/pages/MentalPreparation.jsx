@@ -14,6 +14,8 @@ import {
     Paper,
     Card,
     CardContent,
+    Button,
+    Alert
 } from "@mui/material";
 import { Bar } from "react-chartjs-2";
 import axios from "axios";
@@ -26,6 +28,8 @@ const MentalPreparation = () => {
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const [error, setError] = useState(null);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -44,7 +48,9 @@ const MentalPreparation = () => {
             }
         };
 
-        fetchStats();
+        if (!stats || !clients.length) {
+            fetchStats();
+        }
     }, [selectedYear]);
 
     const processStats = (data) => {
@@ -92,28 +98,38 @@ const MentalPreparation = () => {
     };
 
     const chartData = useMemo(() => ({
-        labels: Object.keys(stats || {}),
+        labels: stats ? Object.keys(stats) : [],
         datasets: [
             {
                 label: "Nombre de clients",
-                data: stats ? Object.values(stats).map((s) => s.clients) : [],
+                data: stats ? Object.values(stats).map((s) => s.clients || 0) : [],
                 backgroundColor: "rgba(75,192,192,0.4)",
             },
             {
                 label: "Nombre de prestations",
-                data: stats ? Object.values(stats).map((s) => s.prestations) : [],
+                data: stats ? Object.values(stats).map((s) => s.prestations || 0) : [],
                 backgroundColor: "rgba(153,102,255,0.4)",
             },
             {
                 label: "Chiffre d'affaires (€)",
-                data: stats ? Object.values(stats).map((s) => s.ca) : [],
+                data: stats ? Object.values(stats).map((s) => s.ca || 0) : [],
                 backgroundColor: "rgba(255,159,64,0.4)",
             },
         ],
     }), [stats]);
 
+
     return (
         <Box sx={{ maxWidth: 1000, mx: "auto", p: 3 }}>
+            <Button
+                variant="contained"
+                color="primary"
+                sx={{ mb: 2 }}
+                onClick={() => navigate(-1)}
+            >
+                ← Retour
+            </Button>
+
             <Typography variant="h4" component="h1" gutterBottom textAlign="center" fontWeight="bold">
                 Préparation Mentale - Statistiques
             </Typography>
@@ -139,7 +155,11 @@ const MentalPreparation = () => {
                     </TextField>
                 </CardContent>
             </Card>
-
+            {error && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                    {error}
+                </Alert>
+            )}
             {loading ? (
                 <CircularProgress sx={{ display: "block", mx: "auto" }} />
             ) : stats ? (

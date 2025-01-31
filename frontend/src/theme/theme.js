@@ -3,18 +3,12 @@ import typography from "./typography";
 import colors from "./colors";
 
 const theme = createTheme({
-  typography, // Intègre la typographie
-  palette: colors, // Intègre la palette de couleurs
-  borderRadius: "8px",
-  shadow: "0px 2px 10px rgba(0, 0, 0, 0.1)",
-  font: {
-    main: "Inter, Roboto, sans-serif",
-    size: {
-      small: "14px",
-      medium: "16px",
-      large: "20px",
-    },
+  typography, // Charge la typographie
+  palette: colors.palette, // ✅ Utilise bien la structure attendue par MUI
+  shape: {
+    borderRadius: 8,
   },
+  shadows: ["none", "0px 2px 10px rgba(0, 0, 0, 0.1)"],
 });
 
 export default theme;
